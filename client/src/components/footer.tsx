@@ -21,7 +21,7 @@ export function Footer() {
             <Github className="h-4 w-4 text-fg" />
           </a>
           <a
-            href="https://twitter.com/"
+            href="https://x.com/iamsaurabhr"
             target="_blank"
             rel="noreferrer noopener"
             aria-label="Twitter / X"

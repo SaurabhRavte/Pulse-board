@@ -72,8 +72,9 @@ function CreatePollInner() {
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [responseMode, setResponseMode] = useState;
-  "anonymous" | ("authenticated" > "anonymous");
+  const [responseMode, setResponseMode] = useState<
+    "anonymous" | "authenticated"
+  >("anonymous");
   const [expiresAt, setExpiresAt] = useState<string>("");
   const [questions, setQuestions] = useState<DraftQuestion[]>([
     blankQuestion(),
