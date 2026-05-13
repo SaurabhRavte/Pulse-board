@@ -1,20 +1,23 @@
-import { z, ZodObject, ZodRawShape, ZodTypeAny } from "zod";
+import { z, type ZodTypeAny } from "zod";
 
-class BaseDto {
+abstract class BaseDto {
   static schema: ZodTypeAny = z.object({});
 
-  static validate<T extends ZodRawShape>(
-    this: { schema: ZodObject<T> },
+  static validate<S extends ZodTypeAny>(
+    this: { schema: S },
     data: unknown,
-  ): { errors: string[] | null; value: z.infer<ZodObject<T>> | null } {
+  ): { errors: string[] | null; value: z.infer<S> | null } {
     const result = this.schema.safeParse(data);
 
     if (!result.success) {
-      const errors = result.error.errors.map((e) => e.message);
+      const errors = result.error.issues.map((issue) => {
+        const path = issue.path.join(".");
+        return path ? `${path}: ${issue.message}` : issue.message;
+      });
       return { errors, value: null };
     }
 
-    return { errors: null, value: result.data };
+    return { errors: null, value: result.data as z.infer<S> };
   }
 }
 
