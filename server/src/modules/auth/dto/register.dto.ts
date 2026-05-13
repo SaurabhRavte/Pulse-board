@@ -2,20 +2,19 @@ import { z } from "zod";
 import BaseDto from "../../../common/dto/base.dto.js";
 
 class RegisterDto extends BaseDto {
-  static schema = z.object({
-    name: z.string().trim().min(2).max(50),
+  static override schema = z.object({
+    name: z.string().trim().min(2, "Name is too short").max(120),
     email: z
       .string()
-      .email()
-      .transform((val) => val.toLowerCase()),
+      .email("Invalid email address")
+      .transform((v) => v.toLowerCase()),
     password: z
       .string()
-      .min(8)
+      .min(8, "Password must be at least 8 characters")
       .regex(
         /(?=.*[A-Z])(?=.*\d)/,
         "Password must contain at least one uppercase letter and one digit",
       ),
-    role: z.enum(["customer", "seller"]).default("customer"),
   });
 }
 

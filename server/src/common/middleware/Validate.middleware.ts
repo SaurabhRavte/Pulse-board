@@ -1,14 +1,14 @@
-import { Request, Response, NextFunction } from "express";
+import type { Request, Response, NextFunction } from "express";
 import ApiError from "../utils/api-error.js";
-import BaseDto from "../dtos/base-dto.js";
+import type BaseDto from "../dto/base.dto.js";
 
 type DtoClass = typeof BaseDto;
 
 const validate = (DtoClass: DtoClass) => {
-  return (req: Request, res: Response, next: NextFunction): void => {
+  return (req: Request, _res: Response, next: NextFunction): void => {
     const { errors, value } = DtoClass.validate(req.body);
     if (errors) {
-      throw ApiError.badRequest(errors.join("; "));
+      return next(ApiError.badRequest(errors.join("; ")));
     }
     req.body = value;
     next();

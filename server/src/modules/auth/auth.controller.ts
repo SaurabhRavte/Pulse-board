@@ -1,68 +1,80 @@
+import type { Request, Response, NextFunction } from "express";
 import * as authService from "./auth.service.js";
 import ApiResponse from "../../common/utils/api-response.js";
 
-const register = async (req, res) => {
-  const user = await authService.register(req.body);
-  ApiResponse.created(
-    res,
-    "Registration successful. Please verify your email.",
-    user,
-  );
+/** Standard cookie options for the refresh token. */
+const refreshCookieOptions = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "lax" as const,
+  maxAge: 7 * 24 * 60 * 60 * 1000,
+  path: "/",
 };
 
-const login = async (req, res) => {
-  const { user, accessToken, refreshToken } = await authService.login(req.body);
-
-  // Refresh token goes in httpOnly cookie — not accessible to JS
-  res.cookie("refreshToken", refreshToken, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-  });
-
-  ApiResponse.ok(res, "Login successful", { user, accessToken });
+const register = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const user = await authService.register(req.body);
+    return ApiResponse.created(res, "Registration successful", user);
+  } catch (err) {
+    next(err);
+  }
 };
 
-const refreshToken = async (req, res) => {
-  const token = req.cookies?.refreshToken;
-  const { accessToken } = await authService.refresh(token);
-  ApiResponse.ok(res, "Token refreshed", { accessToken });
+const login = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { user, accessToken, refreshToken } = await authService.login(
+      req.body,
+    );
+    res.cookie("refreshToken", refreshToken, refreshCookieOptions);
+    return ApiResponse.ok(res, "Login successful", { user, accessToken });
+  } catch (err) {
+    next(err);
+  }
 };
 
-const logout = async (req, res) => {
-  await authService.logout(req.user.id);
-  res.clearCookie("refreshToken");
-  ApiResponse.ok(res, "Logged out successfully");
+const refreshToken = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const token = req.cookies?.refreshToken;
+    const { accessToken } = await authService.refresh(token);
+    return ApiResponse.ok(res, "Token refreshed", { accessToken });
+  } catch (err) {
+    next(err);
+  }
 };
 
-const verifyEmail = async (req, res) => {
-  await authService.verifyEmail(req.params.token);
-  ApiResponse.ok(res, "Email verified successfully");
+const logout = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    await authService.logout(req.user!.id);
+    res.clearCookie("refreshToken", { path: "/" });
+    return ApiResponse.ok(res, "Logged out successfully");
+  } catch (err) {
+    next(err);
+  }
 };
 
-const forgotPassword = async (req, res) => {
-  await authService.forgotPassword(req.body.email);
-  ApiResponse.ok(res, "Password reset email sent");
+const getMe = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const user = await authService.getMe(req.user!.id);
+    return ApiResponse.ok(res, "User profile", user);
+  } catch (err) {
+    next(err);
+  }
 };
 
-const resetPassword = async (req, res) => {
-  await authService.resetPassword(req.params.token, req.body.password);
-  ApiResponse.ok(res, "Password reset successful");
+const clerkSync = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { user, accessToken, refreshToken } = await authService.syncClerkUser(
+      req.body,
+    );
+    res.cookie("refreshToken", refreshToken, refreshCookieOptions);
+    return ApiResponse.ok(res, "Clerk session linked", { user, accessToken });
+  } catch (err) {
+    next(err);
+  }
 };
 
-const getMe = async (req, res) => {
-  const user = await authService.getMe(req.user.id);
-  ApiResponse.ok(res, "User profile", user);
-};
-
-export {
-  register,
-  login,
-  refreshToken,
-  logout,
-  verifyEmail,
-  forgotPassword,
-  resetPassword,
-  getMe,
-};
+export { register, login, refreshToken, logout, getMe, clerkSync };

@@ -1,53 +1,49 @@
-import mongoose from "mongoose";
-import bcrypt from "bcryptjs";
+import { eq } from "drizzle-orm";
+import { db } from "../../common/db/index.js";
+import { usersTable, type User, type NewUser } from "../../common/db/schema.js";
 
-const userSchema = new mongoose.Schema(
-  {
-    name: {
-      type: String,
-      required: [true, "Name is required"],
-      trim: true,
-      minlength: 2,
-      maxlength: 50,
-    },
-    email: {
-      type: String,
-      required: [true, "Email is required"],
-      unique: true,
-      lowercase: true,
-      trim: true,
-    },
-    password: {
-      type: String,
-      required: [true, "Password is required"],
-      minlength: 8,
-      select: false,
-    },
-    role: {
-      type: String,
-      enum: ["customer", "seller", "admin", "support"],
-      default: "customer",
-    },
-    isVerified: {
-      type: Boolean,
-      default: false,
-    },
-    verificationToken: { type: String, select: false },
-    refreshToken: { type: String, select: false },
-    resetPasswordToken: { type: String, select: false },
-    resetPasswordExpires: { type: Date, select: false },
+const UserModel = {
+  async findByEmail(email: string): Promise<User | undefined> {
+    const rows = await db
+      .select()
+      .from(usersTable)
+      .where(eq(usersTable.email, email.toLowerCase()))
+      .limit(1);
+    return rows[0];
   },
-  { timestamps: true },
-);
 
-// Hash password before saving
-userSchema.pre("save", async function () {
-  if (!this.isModified("password")) return;
-  this.password = await bcrypt.hash(this.password, 12);
-});
+  async findById(id: string): Promise<User | undefined> {
+    const rows = await db
+      .select()
+      .from(usersTable)
+      .where(eq(usersTable.id, id))
+      .limit(1);
+    return rows[0];
+  },
 
-userSchema.methods.comparePassword = async function (candidatePassword) {
-  return bcrypt.compare(candidatePassword, this.password);
+  async findByClerkId(clerkId: string): Promise<User | undefined> {
+    const rows = await db
+      .select()
+      .from(usersTable)
+      .where(eq(usersTable.clerkId, clerkId))
+      .limit(1);
+    return rows[0];
+  },
+
+  async create(values: NewUser): Promise<User> {
+    const [row] = await db.insert(usersTable).values(values).returning();
+    return row!;
+  },
+
+  async updateRefreshToken(
+    id: string,
+    refreshTokenHash: string | null,
+  ): Promise<void> {
+    await db
+      .update(usersTable)
+      .set({ refreshTokenHash, updatedAt: new Date() })
+      .where(eq(usersTable.id, id));
+  },
 };
 
-export default mongoose.model("User", userSchema);
+export default UserModel;
