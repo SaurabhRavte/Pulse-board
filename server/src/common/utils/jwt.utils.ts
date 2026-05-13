@@ -1,6 +1,6 @@
 import jwt, { type SignOptions, type Secret } from "jsonwebtoken";
 import crypto from "node:crypto";
-import ApiError from "./api-error.js";
+import ApiError from "./api-error";
 
 const ACCESS_SECRET: Secret = (process.env.JWT_ACCESS_SECRET ||
   "dev-access-secret-change-me") as Secret;

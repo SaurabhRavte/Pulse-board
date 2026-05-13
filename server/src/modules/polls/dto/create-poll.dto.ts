@@ -1,5 +1,5 @@
 import { z } from "zod";
-import BaseDto from "../../../common/dto/base.dto.js";
+import BaseDto from "../../../common/dto/base.dto";
 
 const QuestionSchema = z.object({
   prompt: z.string().trim().min(1, "Question prompt is required").max(500),

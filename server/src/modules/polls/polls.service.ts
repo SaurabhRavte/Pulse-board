@@ -1,18 +1,18 @@
 import crypto from "node:crypto";
-import ApiError from "../../common/utils/api-error.js";
-import { hashString } from "../../common/utils/jwt.utils.js";
+import ApiError from "../../common/utils/api-error";
+import { hashString } from "../../common/utils/jwt.utils";
 import {
   emitPollResponse,
   emitPollPublished,
   emitPollClosed,
-} from "../../common/sockets/index.js";
-import PollModel from "./polls.model.js";
+} from "../../common/sockets/index";
+import PollModel from "./polls.model";
 
 interface CreatePollInput {
   title: string;
   description?: string | null;
   responseMode: "anonymous" | "authenticated";
-  expiresAt: string | null; from client
+  expiresAt: string | null;
   questions: Array<{
     prompt: string;
     isMandatory: boolean;
@@ -27,15 +27,9 @@ interface SubmitInput {
   answers: Array<{ questionId: string; optionId: string }>;
 }
 
-/** 12 char URL-safe slug from random bytes. */
 const generateSlug = (): string =>
   crypto.randomBytes(9).toString("base64url").slice(0, 12);
 
-/**
- * Treats a poll as "open for responses" if status is active and either it has
- * no expiry, or expiry is still in the future. Centralised so the same rule
- * applies in every route that accepts a submission.
- */
 const isAcceptingResponses = (poll: {
   status: string;
   expiresAt: Date | null;
@@ -46,7 +40,6 @@ const isAcceptingResponses = (poll: {
 };
 
 const createPoll = async (creatorId: string, input: CreatePollInput) => {
-  // Defensive — DTO already validates, but never trust transformed values.
   if (input.questions.length === 0) {
     throw ApiError.badRequest("Poll must have at least one question");
   }
@@ -63,7 +56,6 @@ const createPoll = async (creatorId: string, input: CreatePollInput) => {
     expiresAt = parsed;
   }
 
-  // Retry slug a few times in the (extremely unlikely) collision case.
   let slug = generateSlug();
   for (let i = 0; i < 5; i++) {
     const existing = await PollModel.findBySlug(slug);
@@ -93,11 +85,6 @@ const getPollForCreator = async (pollId: string, creatorId: string) => {
   return poll;
 };
 
-/**
- * Public view used by respondents. Returns a poll only when it's still
- * accepting responses OR when its results have been published. Otherwise we
- * surface a 410 so the UI can show "this poll has closed".
- */
 const getPublicPoll = async (slug: string) => {
   const poll = await PollModel.findFullBySlug(slug);
   if (!poll) throw ApiError.notFound("Poll not found");
@@ -139,13 +126,11 @@ const submitResponse = async (input: SubmitInput) => {
     throw ApiError.gone("This poll is no longer accepting responses");
   }
 
-  // Authenticated-mode polls require a logged-in respondent.
   if (poll.responseMode === "authenticated" && !input.respondentId) {
     throw ApiError.unauthorized(
       "This poll requires you to be signed in to respond",
     );
   }
-
 
   if (input.respondentId) {
     const already = await PollModel.hasResponded(
@@ -156,7 +141,6 @@ const submitResponse = async (input: SubmitInput) => {
       throw ApiError.conflict("You have already responded to this poll");
     }
   }
-
 
   const full = await PollModel.loadQuestionsAndOptions(input.pollId);
   if (!full) throw ApiError.notFound("Poll not found");
@@ -204,7 +188,6 @@ const submitResponse = async (input: SubmitInput) => {
     answers: input.answers,
   });
 
- 
   emitPollResponse({
     pollId: input.pollId,
     totalResponses: result.totalResponses,

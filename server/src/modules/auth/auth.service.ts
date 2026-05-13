@@ -1,13 +1,13 @@
 import bcrypt from "bcrypt";
-import ApiError from "../../common/utils/api-error.js";
+import ApiError from "../../common/utils/api-error";
 import {
   generateAccessToken,
   generateRefreshToken,
   verifyRefreshToken,
   hashString,
-} from "../../common/utils/jwt.utils.js";
-import UserModel from "./auth.model.js";
-import type { User } from "../../common/db/schema.js";
+} from "../../common/utils/jwt.utils";
+import UserModel from "./auth.model";
+import type { User } from "../../common/db/schema";
 
 interface RegisterInput {
   name: string;

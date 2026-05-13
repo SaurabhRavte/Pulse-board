@@ -1,11 +1,11 @@
 import { Router } from "express";
-import * as controller from "./auth.controller.js";
-import { authenticate } from "./auth.middleware.js";
-import validate from "../../common/middleware/Validate.middleware.js";
-import { authLimiter } from "../../common/middleware/rate-limit.middleware.js";
-import RegisterDto from "./dto/register.dto.js";
-import LoginDto from "./dto/login.dto.js";
-import ClerkSyncDto from "./dto/clerk-sync.dto.js";
+import * as controller from "./auth.controller";
+import { authenticate } from "./auth.middleware";
+import validate from "../../common/middleware/Validate.middleware";
+import { authLimiter } from "../../common/middleware/rate-limit.middleware";
+import RegisterDto from "./dto/register.dto";
+import LoginDto from "./dto/login.dto";
+import ClerkSyncDto from "./dto/clerk-sync.dto";
 
 const router = Router();
 

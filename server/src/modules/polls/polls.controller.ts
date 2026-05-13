@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
-import * as pollsService from "./polls.service.js";
-import ApiResponse from "../../common/utils/api-response.js";
+import * as pollsService from "./polls.service";
+import ApiResponse from "../../common/utils/api-response";
 
 const create = async (req: Request, res: Response, next: NextFunction) => {
   try {

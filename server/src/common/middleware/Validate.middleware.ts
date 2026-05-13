@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
-import ApiError from "../utils/api-error.js";
-import type BaseDto from "../dto/base.dto.js";
+import ApiError from "../utils/api-error";
+import type BaseDto from "../dto/base.dto";
 
 type DtoClass = typeof BaseDto;
 

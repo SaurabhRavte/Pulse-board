@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
-import * as authService from "./auth.service.js";
-import ApiResponse from "../../common/utils/api-response.js";
+import * as authService from "./auth.service";
+import ApiResponse from "../../common/utils/api-response";
 
 /** Standard cookie options for the refresh token. */
 const refreshCookieOptions = {

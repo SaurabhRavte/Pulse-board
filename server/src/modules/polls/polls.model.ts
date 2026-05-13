@@ -1,5 +1,5 @@
 import { and, eq, sql, desc } from "drizzle-orm";
-import { db } from "../../common/db/index.js";
+import { db } from "../../common/db/index";
 import {
   pollsTable,
   questionsTable,
@@ -7,7 +7,7 @@ import {
   responsesTable,
   responseAnswersTable,
   type Poll,
-} from "../../common/db/schema.js";
+} from "../../common/db/schema";
 
 interface CreatePollData {
   creatorId: string;

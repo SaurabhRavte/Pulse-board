@@ -1,8 +1,8 @@
 import type { Request, Response, NextFunction } from "express";
-import * as analyticsService from "./analytics.service.js";
-import ApiResponse from "../../common/utils/api-response.js";
-import PollModel from "../polls/polls.model.js";
-import ApiError from "../../common/utils/api-error.js";
+import * as analyticsService from "./analytics.service";
+import ApiResponse from "../../common/utils/api-response";
+import PollModel from "../polls/polls.model";
+import ApiError from "../../common/utils/api-error";
 
 /** Owner-only analytics  */
 const getForCreator = async (

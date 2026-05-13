@@ -1,10 +1,10 @@
 import { Router } from "express";
-import * as controller from "./polls.controller.js";
-import { authenticate, optionalAuth } from "../auth/auth.middleware.js";
-import validate from "../../common/middleware/Validate.middleware.js";
-import { submitResponseLimiter } from "../../common/middleware/rate-limit.middleware.js";
-import CreatePollDto from "./dto/create-poll.dto.js";
-import SubmitResponseDto from "./dto/submit-response.dto.js";
+import * as controller from "./polls.controller";
+import { authenticate, optionalAuth } from "../auth/auth.middleware";
+import validate from "../../common/middleware/Validate.middleware";
+import { submitResponseLimiter } from "../../common/middleware/rate-limit.middleware";
+import CreatePollDto from "./dto/create-poll.dto";
+import SubmitResponseDto from "./dto/submit-response.dto";
 
 const router = Router();
 

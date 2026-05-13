@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
-import { db } from "../../common/db/index.js";
-import { usersTable, type User, type NewUser } from "../../common/db/schema.js";
+import { db } from "../../common/db/index";
+import { usersTable, type User, type NewUser } from "../../common/db/schema";
 
 const UserModel = {
   async findByEmail(email: string): Promise<User | undefined> {

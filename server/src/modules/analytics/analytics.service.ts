@@ -1,13 +1,13 @@
 import { eq, sql, and } from "drizzle-orm";
-import { db } from "../../common/db/index.js";
+import { db } from "../../common/db/index";
 import {
   pollsTable,
   responsesTable,
   questionsTable,
   optionsTable,
   responseAnswersTable,
-} from "../../common/db/schema.js";
-import ApiError from "../../common/utils/api-error.js";
+} from "../../common/db/schema";
+import ApiError from "../../common/utils/api-error";
 
 interface QuestionSummary {
   questionId: string;

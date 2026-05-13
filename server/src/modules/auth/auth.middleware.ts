@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
-import ApiError from "../../common/utils/api-error.js";
-import { verifyAccessToken } from "../../common/utils/jwt.utils.js";
+import ApiError from "../../common/utils/api-error";
+import { verifyAccessToken } from "../../common/utils/jwt.utils";
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace

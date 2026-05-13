@@ -1,5 +1,5 @@
 import { z } from "zod";
-import BaseDto from "../../../common/dto/base.dto.js";
+import BaseDto from "../../../common/dto/base.dto";
 
 class ClerkSyncDto extends BaseDto {
   static override schema = z.object({

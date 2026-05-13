@@ -2,14 +2,14 @@ import express, { type Express } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import cookieParser from "cookie-parser";
-import authRoutes from "./modules/auth/auth.routes.js";
-import pollsRoutes, { responsesRouter } from "./modules/polls/polls.routes.js";
-import analyticsRoutes from "./modules/analytics/analytics.routes.js";
+import authRoutes from "./modules/auth/auth.routes";
+import pollsRoutes, { responsesRouter } from "./modules/polls/polls.routes";
+import analyticsRoutes from "./modules/analytics/analytics.routes";
 import {
   errorHandler,
   notFoundHandler,
-} from "./common/middleware/error.middleware.js";
-import { apiLimiter } from "./common/middleware/rate-limit.middleware.js";
+} from "./common/middleware/error.middleware";
+import { apiLimiter } from "./common/middleware/rate-limit.middleware";
 
 export function createApplication(): Express {
   const app = express();
