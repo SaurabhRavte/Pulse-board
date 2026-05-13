@@ -1,7 +1,15 @@
 /* eslint-disable react-refresh/only-export-components */
 import { useEffect, useState } from "react";
 import { Link, useParams, createFileRoute } from "@tanstack/react-router";
-import { CheckCircle2, Copy, Globe, XCircle } from "lucide-react";
+import {
+  CheckCircle2,
+  Copy,
+  Globe,
+  User,
+  UserCheck,
+  XCircle,
+  Eye,
+} from "lucide-react";
 import { api, errorMessage } from "../lib/api";
 import { subscribeToPoll } from "../lib/socket";
 import { Protected } from "../components/protected";
@@ -15,6 +23,7 @@ import {
 } from "../components/card";
 import { BarChart } from "../components/bar-chart";
 import { FullPageLoader } from "../components/loader";
+import { Countdown } from "../components/countdown";
 
 interface OptionAnalytics {
   optionId: string;
@@ -26,14 +35,23 @@ interface QuestionAnalytics {
   questionId: string;
   prompt: string;
   isMandatory: boolean;
+  type: "single" | "multiple";
   totalAnswers: number;
   options: OptionAnalytics[];
+}
+interface Respondent {
+  responseId: string;
+  userId: string | null;
+  name: string | null;
+  email: string | null;
+  submittedAt: string;
 }
 interface AnalyticsDTO {
   pollId: string;
   totalResponses: number;
   questions: QuestionAnalytics[];
   responsesOverTime: Array<{ date: string; count: number }>;
+  respondents?: Respondent[];
 }
 interface PollMeta {
   id: string;
@@ -45,6 +63,17 @@ interface PollMeta {
   expiresAt: string | null;
 }
 
+function Stat({ label, value }: { label: string; value: number | string }) {
+  return (
+    <Card className="p-5">
+      <p className="text-xs uppercase tracking-widest text-muted">{label}</p>
+      <p className="text-3xl font-semibold tracking-tight text-fg mt-2 tabular-nums">
+        {value}
+      </p>
+    </Card>
+  );
+}
+
 function AnalyticsInner() {
   const { pollId } = useParams({ from: "/polls/$pollId/analytics" });
 
@@ -53,10 +82,20 @@ function AnalyticsInner() {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  /* ----- Initial load ----- */
+  const refetchAnalytics = async () => {
+    try {
+      const res = await api.get<{ data: AnalyticsDTO }>(
+        `/api/analytics/${pollId}`,
+      );
+      setAnalytics(res.data.data);
+    } catch {
+      // ignore
+    }
+  };
+
   useEffect(() => {
     let cancelled = false;
-    const load = async () => {
+    (async () => {
       try {
         const [pollRes, anaRes] = await Promise.all([
           api.get<{ data: PollMeta }>(`/api/polls/${pollId}`),
@@ -68,33 +107,30 @@ function AnalyticsInner() {
       } catch (err) {
         if (!cancelled) setError(errorMessage(err, "Could not load analytics"));
       }
-    };
-    load();
+    })();
     return () => {
       cancelled = true;
     };
   }, [pollId]);
 
-  /* ----- Live updates via Socket.io ----- */
   useEffect(() => {
     const unsub = subscribeToPoll(pollId, {
       onResponse: ({ totalResponses, optionCounts }) => {
-        // Merge new counts in without refetching the whole analytics object.
         setAnalytics((prev) => {
           if (!prev) return prev;
           return {
             ...prev,
             totalResponses,
             questions: prev.questions.map((q) => {
-              const updatedOptions = q.options.map((o) => ({
+              const updated = q.options.map((o) => ({
                 ...o,
                 count: optionCounts[o.optionId] ?? o.count,
               }));
-              const total = updatedOptions.reduce((s, o) => s + o.count, 0);
+              const total = updated.reduce((s, o) => s + o.count, 0);
               return {
                 ...q,
                 totalAnswers: total,
-                options: updatedOptions.map((o) => ({
+                options: updated.map((o) => ({
                   ...o,
                   percentage:
                     total > 0 ? Math.round((o.count / total) * 1000) / 10 : 0,
@@ -103,6 +139,8 @@ function AnalyticsInner() {
             }),
           };
         });
+        // refetch respondents in background so list stays fresh
+        refetchAnalytics();
       },
       onClosed: () => setPoll((p) => (p ? { ...p, status: "closed" } : p)),
       onPublished: () =>
@@ -111,9 +149,8 @@ function AnalyticsInner() {
         ),
     });
     return unsub;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pollId]);
-
-  /* ----- Actions ----- */
 
   const handlePublish = async () => {
     if (!poll) return;
@@ -150,8 +187,9 @@ function AnalyticsInner() {
   const handleCopyLink = async () => {
     if (!poll) return;
     try {
-      const url = `${window.location.origin}/p/${poll.slug}`;
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(
+        `${window.location.origin}/p/${poll.slug}`,
+      );
     } catch {
       // ignore
     }
@@ -168,9 +206,12 @@ function AnalyticsInner() {
   }
   if (!poll || !analytics) return <FullPageLoader />;
 
+  const respondents = analytics.respondents ?? [];
+  const namedRespondents = respondents.filter((r) => r.userId);
+  const anonymousCount = respondents.length - namedRespondents.length;
+
   return (
     <div className="mx-auto max-w-5xl px-6 py-10">
-      {/* -------- Header -------- */}
       <div className="flex items-start justify-between flex-wrap gap-4">
         <div>
           <Link
@@ -204,6 +245,9 @@ function AnalyticsInner() {
               <span className="h-1.5 w-1.5 rounded-full bg-[rgb(var(--pb-success))] animate-pulse" />
               Live
             </Badge>
+            {poll.expiresAt && poll.status === "active" && (
+              <Countdown expiresAt={poll.expiresAt} />
+            )}
           </div>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
@@ -214,6 +258,13 @@ function AnalyticsInner() {
           >
             Copy link
           </Button>
+          {poll.resultsPublished && (
+            <Link to="/p/$slug/results" params={{ slug: poll.slug }}>
+              <Button variant="outline" leftIcon={<Eye className="h-4 w-4" />}>
+                View public results
+              </Button>
+            </Link>
+          )}
           {poll.status === "active" && (
             <Button
               variant="outline"
@@ -236,7 +287,6 @@ function AnalyticsInner() {
         </div>
       </div>
 
-      {/* -------- Top-line stat -------- */}
       <div className="grid sm:grid-cols-3 gap-4 mt-8">
         <Stat label="Total responses" value={analytics.totalResponses} />
         <Stat label="Questions" value={analytics.questions.length} />
@@ -253,7 +303,6 @@ function AnalyticsInner() {
         />
       </div>
 
-      {/* -------- Per-question breakdowns -------- */}
       <div className="mt-10 space-y-6">
         {analytics.questions.map((q, idx) => (
           <Card key={q.questionId}>
@@ -265,9 +314,15 @@ function AnalyticsInner() {
                   </span>
                   {q.prompt}
                 </CardTitle>
-                <span className="text-xs text-muted whitespace-nowrap">
-                  {q.totalAnswers} {q.totalAnswers === 1 ? "answer" : "answers"}
-                </span>
+                <div className="flex items-center gap-2 whitespace-nowrap">
+                  {q.type === "multiple" && (
+                    <Badge tone="neutral">multi-select</Badge>
+                  )}
+                  <span className="text-xs text-muted">
+                    {q.totalAnswers}{" "}
+                    {q.totalAnswers === 1 ? "answer" : "answers"}
+                  </span>
+                </div>
               </div>
             </CardHeader>
             <CardBody>
@@ -289,7 +344,6 @@ function AnalyticsInner() {
                   </div>
                 ))}
               </div>
-
               {q.totalAnswers > 0 && (
                 <BarChart
                   title="Distribution"
@@ -304,7 +358,56 @@ function AnalyticsInner() {
         ))}
       </div>
 
-      {/* -------- Share link footer -------- */}
+      {/* Respondents list — creator-only */}
+      <Card className="mt-8">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle>Respondents</CardTitle>
+            <span className="text-xs text-muted">
+              {namedRespondents.length} signed-in
+              {anonymousCount > 0 && ` · ${anonymousCount} anonymous`}
+            </span>
+          </div>
+        </CardHeader>
+        <CardBody>
+          {respondents.length === 0 && (
+            <p className="text-sm text-muted">No responses yet.</p>
+          )}
+          {respondents.length > 0 && (
+            <ul className="divide-y divide-[rgb(var(--pb-border))]">
+              {respondents.map((r) => (
+                <li key={r.responseId} className="flex items-center gap-3 py-3">
+                  <span className="h-8 w-8 grid place-items-center rounded-full bg-app border border-app text-muted">
+                    {r.userId ? (
+                      <UserCheck className="h-4 w-4" />
+                    ) : (
+                      <User className="h-4 w-4" />
+                    )}
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    {r.userId ? (
+                      <>
+                        <p className="text-sm text-fg truncate">
+                          {r.name ?? "Unnamed user"}
+                        </p>
+                        <p className="text-xs text-muted truncate">{r.email}</p>
+                      </>
+                    ) : (
+                      <p className="text-sm text-muted italic">
+                        Anonymous respondent
+                      </p>
+                    )}
+                  </div>
+                  <span className="text-xs text-muted whitespace-nowrap">
+                    {new Date(r.submittedAt).toLocaleString()}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </CardBody>
+      </Card>
+
       <Card className="mt-8 p-6">
         <p className="text-xs uppercase tracking-widest text-muted mb-2">
           Public link
@@ -322,17 +425,6 @@ function AnalyticsInner() {
         </div>
       </Card>
     </div>
-  );
-}
-
-function Stat({ label, value }: { label: string; value: number }) {
-  return (
-    <Card className="p-5">
-      <p className="text-xs uppercase tracking-widest text-muted">{label}</p>
-      <p className="text-3xl font-semibold tracking-tight text-fg mt-2 tabular-nums">
-        {value}
-      </p>
-    </Card>
   );
 }
 
