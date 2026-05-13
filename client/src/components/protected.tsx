@@ -3,11 +3,6 @@ import { useNavigate } from "@tanstack/react-router";
 import { authStore } from "../lib/auth";
 import { FullPageLoader } from "./loader";
 
-/**
- * Gates a subtree behind auth. Renders a loader while we resolve the initial
- * auth state (which is synchronous here, but the effect avoids a flash of
- * unauthenticated content on routes opened directly from a cold load).
- */
 export function Protected({ children }: { children: ReactNode }) {
   const [authed, setAuthed] = useState<boolean | null>(null);
   const navigate = useNavigate();

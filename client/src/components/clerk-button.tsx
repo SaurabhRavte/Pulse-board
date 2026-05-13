@@ -5,12 +5,6 @@ import { api, errorMessage } from "../lib/api";
 import { setSession } from "../lib/auth";
 import { Button } from "./button";
 
-/**
- * Clerk "Continue with Google" button. After Clerk completes the OAuth dance
- * we POST the verified user details to our backend's /api/auth/clerk-sync
- * endpoint, which returns our own JWTs and links the Clerk account to a
- * local user row.
- */
 export function ClerkButton({
   mode = "signin",
 }: {
@@ -24,14 +18,12 @@ export function ClerkButton({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Once Clerk reports the user is signed in, sync with our backend.
   useEffect(() => {
     if (!isSignedIn || !user) return;
     let cancelled = false;
 
     const sync = async () => {
       try {
-        // Pull a Clerk session token mostly to confirm session is live.
         await getToken();
         const res = await api.post<{
           success: boolean;
@@ -70,9 +62,7 @@ export function ClerkButton({
       await signIn.authenticateWithRedirect({
         strategy: "oauth_google",
         redirectUrl: `${window.location.origin}/sso-callback`,
-        // Send the user back to /sso-callback after Clerk finishes — that
-        // page calls our /api/auth/clerk-sync endpoint and then forwards
-        // them to /dashboard once a local session exists.
+
         redirectUrlComplete: `${window.location.origin}/sso-callback`,
       });
     } catch (err) {
@@ -102,7 +92,6 @@ export function ClerkButton({
   );
 }
 
-/** Fallback shown when VITE_CLERK_PUBLISHABLE_KEY isn't set. */
 export function ClerkButtonDisabled() {
   return (
     <Button

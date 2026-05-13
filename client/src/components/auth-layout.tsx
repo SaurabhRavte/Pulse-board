@@ -5,11 +5,6 @@ import { BackgroundBeams } from "./background-beams";
 import { Spotlight } from "./spotlight";
 import { ThemeToggle } from "./theme-toggle";
 
-/**
- * Split-screen auth layout used by login & register. Left panel is a dark
- * always-dark brand panel with animated beams + abstract chart art. Right
- * panel is the form, with a "Back to home" link at the top.
- */
 export function AuthLayout({
   eyebrow,
   title,
@@ -24,14 +19,11 @@ export function AuthLayout({
   footer?: ReactNode;
 }) {
   return (
-    // Fixed overlay so it sits above the floating navbar / page footer
-    <div className="fixed inset-0 z-[60] overflow-y-auto bg-app">
+    <div className="fixed inset-0 z-60 overflow-y-auto bg-app">
       <div className="min-h-screen grid lg:grid-cols-2">
-        {/* -------------------- Left brand panel (lg+) -------------------- */}
+        {/* Left */}
         <aside
           className="relative hidden lg:flex flex-col justify-between p-10 overflow-hidden bg-neutral-950 text-neutral-100"
-          // Keep the beams + spotlight visible even when the rest of the app
-          // is on the light theme — the panel is intentionally always dark.
           style={{ "--pb-fg": "250 250 250" } as React.CSSProperties}
           aria-hidden
         >
@@ -45,7 +37,6 @@ export function AuthLayout({
             <span className="font-semibold tracking-tight">PulseBoard</span>
           </div>
 
-          {/* Abstract "live poll" visual that anchors the panel */}
           <div className="relative z-10 flex-1 grid place-items-center">
             <BrandVisual />
           </div>
@@ -61,7 +52,7 @@ export function AuthLayout({
           </div>
         </aside>
 
-        {/* -------------------- Right form panel -------------------- */}
+        {/* Right */}
         <section className="relative flex flex-col px-6 sm:px-12 py-8">
           <div className="flex items-center justify-between">
             <Link
@@ -95,10 +86,6 @@ export function AuthLayout({
   );
 }
 
-/**
- * Pure-CSS/SVG abstract — five "live" bars pulsing at different heights to
- * suggest votes coming in. No external assets, looks intentional, scales.
- */
 function BrandVisual() {
   const bars = [
     { h: 38, delay: "0s" },
@@ -108,7 +95,7 @@ function BrandVisual() {
     { h: 76, delay: "1.6s" },
   ];
   return (
-    <div className="w-full max-w-sm aspect-square rounded-3xl border border-white/10 bg-white/[0.03] backdrop-blur-sm p-8 relative overflow-hidden">
+    <div className="w-full max-w-sm aspect-square rounded-3xl border border-white/10 bg-white/3 backdrop-blur-sm p-8 relative overflow-hidden">
       <div className="flex items-center gap-2">
         <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
         <span className="text-[10px] uppercase tracking-widest text-neutral-400">
@@ -121,7 +108,7 @@ function BrandVisual() {
         {bars.map((b, i) => (
           <div
             key={i}
-            className="flex-1 rounded-md bg-gradient-to-t from-white/90 to-white/40"
+            className="flex-1 rounded-md bg-linear-to-t from-white/90 to-white/40"
             style={{
               height: `${b.h}%`,
               animation: `pb-bar-rise 2.4s ease-out ${b.delay} both`,

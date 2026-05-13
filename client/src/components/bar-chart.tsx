@@ -7,10 +7,6 @@ export interface BarDatum {
   value: number;
 }
 
-/**
- * Horizontal bar chart used on the analytics page to show per-option counts.
- * Wraps TanStack's <Chart> with sensible defaults and theme reactivity.
- */
 export function BarChart({
   data,
   title,
@@ -39,13 +35,12 @@ export function BarChart({
     },
   ];
 
-  // Force a fresh render when theme changes so chart picks up new colors.
   const seriesColor = theme === "dark" ? "#fafafa" : "#0a0a0a";
 
   return (
     <div className="w-full">
       {title && <p className="text-sm font-medium text-fg mb-3">{title}</p>}
-      <div className="h-[260px]">
+      <div className="h-65">
         <Chart
           options={{
             data: [{ label: "Votes", data }],
@@ -55,7 +50,7 @@ export function BarChart({
               color: seriesColor,
               opacity: 0.9,
             }),
-            // Match dark background better
+
             dark: theme === "dark",
           }}
         />

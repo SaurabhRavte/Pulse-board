@@ -27,7 +27,7 @@ export function Textarea({
   return (
     <textarea
       {...rest}
-      className={cn(fieldClasses, "min-h-[88px] resize-y", className)}
+      className={cn(fieldClasses, "min-h-22 resize-y", className)}
     />
   );
 }

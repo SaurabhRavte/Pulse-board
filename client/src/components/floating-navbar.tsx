@@ -11,10 +11,8 @@ export function FloatingNavbar() {
   const [user, setUser] = useState<AuthUser | null>(authStore.get().user);
   const [hidden, setHidden] = useState(false);
 
-  // Mirror auth state into local state via subscription.
   useEffect(() => authStore.subscribe((s) => setUser(s.user)), []);
 
-  // Hide nav when scrolling down, reveal when scrolling up.
   useEffect(() => {
     let lastY = window.scrollY;
     const onScroll = () => {
@@ -31,10 +29,10 @@ export function FloatingNavbar() {
     try {
       await api.post("/api/auth/logout");
     } catch {
-      // ignore — we still clear the local session
+      // ignore
     }
     clearSession();
-    // Navigate to home so protected routes redirect cleanly.
+
     window.location.href = "/";
   };
 
@@ -43,7 +41,7 @@ export function FloatingNavbar() {
       className={cn(
         "fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[min(96%,72rem)]",
         "transition-transform duration-300",
-        hidden ? "-translate-y-[140%] -translate-x-1/2" : "",
+        hidden ? "translate-y-[-140%] -translate-x-1/2" : "",
       )}
     >
       <nav

@@ -1,11 +1,6 @@
 import { cn } from "../lib/cn";
 
-/**
- * Aceternity-style diagonal beam background. Uses pure SVG + Motion-free CSS
- * animation so it stays light-weight.
- */
 export function BackgroundBeams({ className }: { className?: string }) {
-  // A few beams at slightly different positions / delays / durations.
   const beams = [
     { left: "8%", delay: "0s", duration: "9s", height: "240px" },
     { left: "22%", delay: "2s", duration: "11s", height: "180px" },
@@ -20,7 +15,7 @@ export function BackgroundBeams({ className }: { className?: string }) {
       aria-hidden
       className={cn(
         "pointer-events-none absolute inset-0 overflow-hidden",
-        "[mask-image:radial-gradient(60%_50%_at_50%_30%,#000_70%,transparent_100%)]",
+        "mask-[radial-gradient(60%_50%_at_50%_30%,#000_70%,transparent_100%)]",
         className,
       )}
     >
