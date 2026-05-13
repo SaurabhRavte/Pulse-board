@@ -1,12 +1,21 @@
 /* eslint-disable react-refresh/only-export-components */
 import { useState } from "react";
 import { useNavigate, createFileRoute } from "@tanstack/react-router";
-import { CheckCircle2, Circle, GripVertical, Plus, Trash2 } from "lucide-react";
+import {
+  CheckCircle2,
+  CheckSquare,
+  Circle,
+  GripVertical,
+  Plus,
+  Trash2,
+} from "lucide-react";
 import { api, errorMessage } from "../lib/api";
 import { Protected } from "../components/protected";
 import { Button } from "../components/button";
 import { Input, Label, Textarea } from "../components/input";
 import { Card, CardBody, CardHeader, CardTitle } from "../components/card";
+
+type QuestionType = "single" | "multiple";
 
 interface DraftOption {
   id: string;
@@ -16,6 +25,7 @@ interface DraftQuestion {
   id: string;
   prompt: string;
   isMandatory: boolean;
+  type: QuestionType;
   options: DraftOption[];
 }
 
@@ -25,28 +35,51 @@ const blankQuestion = (): DraftQuestion => ({
   id: newId(),
   prompt: "",
   isMandatory: true,
+  type: "single",
   options: [
     { id: newId(), label: "" },
     { id: newId(), label: "" },
   ],
 });
 
+function ModeToggle({
+  label,
+  active,
+  onClick,
+}: {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={
+        "h-10 rounded-lg border text-sm font-medium transition-colors " +
+        (active
+          ? "bg-[rgb(var(--pb-accent))] text-[rgb(var(--pb-accent-fg))] border-[rgb(var(--pb-accent))]"
+          : "bg-elev text-fg border-app hover:bg-[rgb(var(--pb-border))]")
+      }
+    >
+      {label}
+    </button>
+  );
+}
+
 function CreatePollInner() {
   const navigate = useNavigate();
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [responseMode, setResponseMode] = useState<
-    "anonymous" | "authenticated"
-  >("anonymous");
+  const [responseMode, setResponseMode] = useState;
+  "anonymous" | ("authenticated" > "anonymous");
   const [expiresAt, setExpiresAt] = useState<string>("");
   const [questions, setQuestions] = useState<DraftQuestion[]>([
     blankQuestion(),
   ]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  /* ----- Question + option mutations (immutable updates) ----- */
 
   const updateQuestion = (id: string, patch: Partial<DraftQuestion>) =>
     setQuestions((qs) => qs.map((q) => (q.id === id ? { ...q, ...patch } : q)));
@@ -77,10 +110,7 @@ function CreatePollInner() {
       qs.map((q) =>
         q.id !== qId
           ? q
-          : {
-              ...q,
-              options: [...q.options, { id: newId(), label: "" }],
-            },
+          : { ...q, options: [...q.options, { id: newId(), label: "" }] },
       ),
     );
 
@@ -99,13 +129,10 @@ function CreatePollInner() {
       ),
     );
 
-  /* ----- Submit ----- */
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
-    // Cheap client-side validation. The server validates again with zod.
     if (title.trim().length < 2) {
       setError("Title is required");
       return;
@@ -132,16 +159,17 @@ function CreatePollInner() {
         questions: questions.map((q) => ({
           prompt: q.prompt.trim(),
           isMandatory: q.isMandatory,
+          type: q.type,
           options: q.options.map((o) => o.label.trim()).filter(Boolean),
         })),
       };
-      const res = await api.post<{
-        data: { id: string };
-      }>("/api/polls", payload);
-      const pollId = res.data.data.id;
+      const res = await api.post<{ data: { id: string } }>(
+        "/api/polls",
+        payload,
+      );
       navigate({
         to: "/polls/$pollId/analytics",
-        params: { pollId },
+        params: { pollId: res.data.data.id },
       });
     } catch (err) {
       setError(errorMessage(err, "Could not create poll"));
@@ -159,12 +187,10 @@ function CreatePollInner() {
         Build your poll
       </h1>
       <p className="text-sm text-muted mt-2 max-w-xl">
-        Add as many questions as you like. Mark the important ones as required
-        and pick whether responses should be anonymous or signed-in.
+        Add as many questions as you like. Mix single-choice and multi-select.
       </p>
 
       <form className="mt-10 space-y-6" onSubmit={handleSubmit}>
-        {/* -------- Top-level metadata -------- */}
         <Card>
           <CardHeader>
             <CardTitle>Basics</CardTitle>
@@ -221,15 +247,13 @@ function CreatePollInner() {
                   onChange={(e) => setExpiresAt(e.target.value)}
                 />
                 <p className="text-xs text-muted mt-2">
-                  Leave blank for no expiry. After this time responses are
-                  rejected automatically.
+                  Leave blank for no expiry.
                 </p>
               </div>
             </div>
           </CardBody>
         </Card>
 
-        {/* -------- Questions -------- */}
         <div className="space-y-4">
           {questions.map((q, qIdx) => (
             <Card key={q.id}>
@@ -280,12 +304,32 @@ function CreatePollInner() {
                 </div>
 
                 <div>
-                  <Label>Options (respondents pick one)</Label>
+                  <Label>Answer type</Label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <ModeToggle
+                      label="Single choice"
+                      active={q.type === "single"}
+                      onClick={() => updateQuestion(q.id, { type: "single" })}
+                    />
+                    <ModeToggle
+                      label="Multi-select"
+                      active={q.type === "multiple"}
+                      onClick={() => updateQuestion(q.id, { type: "multiple" })}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label>Options</Label>
                   <div className="space-y-2">
                     {q.options.map((o, oIdx) => (
                       <div key={o.id} className="flex items-center gap-2">
                         <GripVertical className="h-4 w-4 text-muted" />
-                        <Circle className="h-4 w-4 text-muted" />
+                        {q.type === "multiple" ? (
+                          <CheckSquare className="h-4 w-4 text-muted" />
+                        ) : (
+                          <Circle className="h-4 w-4 text-muted" />
+                        )}
                         <Input
                           required
                           maxLength={200}
@@ -358,31 +402,6 @@ function CreatePollInner() {
         </div>
       </form>
     </div>
-  );
-}
-
-function ModeToggle({
-  label,
-  active,
-  onClick,
-}: {
-  label: string;
-  active: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={
-        "h-10 rounded-lg border text-sm font-medium transition-colors " +
-        (active
-          ? "bg-[rgb(var(--pb-accent))] text-[rgb(var(--pb-accent-fg))] border-[rgb(var(--pb-accent))]"
-          : "bg-elev text-fg border-app hover:bg-[rgb(var(--pb-border))]")
-      }
-    >
-      {label}
-    </button>
   );
 }
 
