@@ -147,6 +147,6 @@ function PublishedResults() {
 }
 
 // @ts-ignore — typed paths come from the auto-generated routeTree.gen.ts
-export const Route = createFileRoute("/p/$slug/results")({
+export const Route = createFileRoute("/p/$slug_/results")({
   component: PublishedResults,
 });

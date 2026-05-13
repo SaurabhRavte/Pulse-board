@@ -17,7 +17,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as PollsNewRouteImport } from './routes/polls.new'
 import { Route as PSlugRouteImport } from './routes/p.$slug'
 import { Route as PollsPollIdAnalyticsRouteImport } from './routes/polls.$pollId.analytics'
-import { Route as PSlugResultsRouteImport } from './routes/p.$slug.results'
+import { Route as PSlugResultsRouteImport } from './routes/p.$slug_.results'
 
 const SsoCallbackRoute = SsoCallbackRouteImport.update({
   id: '/sso-callback',
@@ -60,9 +60,9 @@ const PollsPollIdAnalyticsRoute = PollsPollIdAnalyticsRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const PSlugResultsRoute = PSlugResultsRouteImport.update({
-  id: '/results',
-  path: '/results',
-  getParentRoute: () => PSlugRoute,
+  id: '/p/$slug_/results',
+  path: '/p/$slug/results',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -71,7 +71,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/sso-callback': typeof SsoCallbackRoute
-  '/p/$slug': typeof PSlugRouteWithChildren
+  '/p/$slug': typeof PSlugRoute
   '/polls/new': typeof PollsNewRoute
   '/p/$slug/results': typeof PSlugResultsRoute
   '/polls/$pollId/analytics': typeof PollsPollIdAnalyticsRoute
@@ -82,7 +82,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/sso-callback': typeof SsoCallbackRoute
-  '/p/$slug': typeof PSlugRouteWithChildren
+  '/p/$slug': typeof PSlugRoute
   '/polls/new': typeof PollsNewRoute
   '/p/$slug/results': typeof PSlugResultsRoute
   '/polls/$pollId/analytics': typeof PollsPollIdAnalyticsRoute
@@ -94,9 +94,9 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/sso-callback': typeof SsoCallbackRoute
-  '/p/$slug': typeof PSlugRouteWithChildren
+  '/p/$slug': typeof PSlugRoute
   '/polls/new': typeof PollsNewRoute
-  '/p/$slug/results': typeof PSlugResultsRoute
+  '/p/$slug_/results': typeof PSlugResultsRoute
   '/polls/$pollId/analytics': typeof PollsPollIdAnalyticsRoute
 }
 export interface FileRouteTypes {
@@ -131,7 +131,7 @@ export interface FileRouteTypes {
     | '/sso-callback'
     | '/p/$slug'
     | '/polls/new'
-    | '/p/$slug/results'
+    | '/p/$slug_/results'
     | '/polls/$pollId/analytics'
   fileRoutesById: FileRoutesById
 }
@@ -141,8 +141,9 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
   SsoCallbackRoute: typeof SsoCallbackRoute
-  PSlugRoute: typeof PSlugRouteWithChildren
+  PSlugRoute: typeof PSlugRoute
   PollsNewRoute: typeof PollsNewRoute
+  PSlugResultsRoute: typeof PSlugResultsRoute
   PollsPollIdAnalyticsRoute: typeof PollsPollIdAnalyticsRoute
 }
 
@@ -204,25 +205,15 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PollsPollIdAnalyticsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/p/$slug/results': {
-      id: '/p/$slug/results'
-      path: '/results'
+    '/p/$slug_/results': {
+      id: '/p/$slug_/results'
+      path: '/p/$slug/results'
       fullPath: '/p/$slug/results'
       preLoaderRoute: typeof PSlugResultsRouteImport
-      parentRoute: typeof PSlugRoute
+      parentRoute: typeof rootRouteImport
     }
   }
 }
-
-interface PSlugRouteChildren {
-  PSlugResultsRoute: typeof PSlugResultsRoute
-}
-
-const PSlugRouteChildren: PSlugRouteChildren = {
-  PSlugResultsRoute: PSlugResultsRoute,
-}
-
-const PSlugRouteWithChildren = PSlugRoute._addFileChildren(PSlugRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -230,8 +221,9 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
   SsoCallbackRoute: SsoCallbackRoute,
-  PSlugRoute: PSlugRouteWithChildren,
+  PSlugRoute: PSlugRoute,
   PollsNewRoute: PollsNewRoute,
+  PSlugResultsRoute: PSlugResultsRoute,
   PollsPollIdAnalyticsRoute: PollsPollIdAnalyticsRoute,
 }
 export const routeTree = rootRouteImport
