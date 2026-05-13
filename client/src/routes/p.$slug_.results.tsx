@@ -24,6 +24,7 @@ interface QuestionAnalytics {
   questionId: string;
   prompt: string;
   isMandatory: boolean;
+  type: "single" | "multiple";
   totalAnswers: number;
   options: OptionAnalytics[];
 }
@@ -40,7 +41,7 @@ function PublishedResults() {
 
   useEffect(() => {
     let cancelled = false;
-    const load = async () => {
+    (async () => {
       try {
         const res = await api.get<{ data: AnalyticsDTO }>(
           `/api/analytics/public/${slug}`,
@@ -50,8 +51,7 @@ function PublishedResults() {
         if (!cancelled)
           setError(errorMessage(err, "Results are not available"));
       }
-    };
-    load();
+    })();
     return () => {
       cancelled = true;
     };
@@ -104,10 +104,15 @@ function PublishedResults() {
                     </span>
                     {q.prompt}
                   </CardTitle>
-                  <span className="text-xs text-muted whitespace-nowrap">
-                    {q.totalAnswers}{" "}
-                    {q.totalAnswers === 1 ? "answer" : "answers"}
-                  </span>
+                  <div className="flex items-center gap-2 whitespace-nowrap">
+                    {q.type === "multiple" && (
+                      <Badge tone="neutral">multi-select</Badge>
+                    )}
+                    <span className="text-xs text-muted">
+                      {q.totalAnswers}{" "}
+                      {q.totalAnswers === 1 ? "answer" : "answers"}
+                    </span>
+                  </div>
                 </div>
               </CardHeader>
               <CardBody>
