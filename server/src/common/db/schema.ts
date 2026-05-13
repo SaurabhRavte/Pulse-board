@@ -17,6 +17,8 @@ export const responseModeEnum = pgEnum("response_mode", [
   "authenticated",
 ]);
 
+export const questionTypeEnum = pgEnum("question_type", ["single", "multiple"]);
+
 export const pollStatusEnum = pgEnum("poll_status", [
   "draft",
   "active",
@@ -92,6 +94,7 @@ export const questionsTable = pgTable(
       .references(() => pollsTable.id, { onDelete: "cascade" }),
     prompt: varchar("prompt", { length: 500 }).notNull(),
     isMandatory: boolean("is_mandatory").notNull().default(true),
+    type: questionTypeEnum("type").notNull().default("single"),
     position: integer("position").notNull().default(0),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
