@@ -14,6 +14,7 @@ import {
 } from "../components/card";
 import { FullPageLoader } from "../components/loader";
 import { Spotlight } from "../components/spotlight";
+import { Countdown } from "../components/countdown";
 
 interface OptionDTO {
   id: string;
@@ -24,6 +25,7 @@ interface QuestionDTO {
   id: string;
   prompt: string;
   isMandatory: boolean;
+  type: "single" | "multiple";
   position: number;
   options: OptionDTO[];
 }
@@ -37,11 +39,16 @@ interface PollDTO {
   expiresAt: string | null;
   questions: QuestionDTO[];
 }
-
 interface PublicResponse {
   poll: PollDTO;
   accepting: boolean;
   resultsPublished: boolean;
+}
+
+function Center({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="min-h-[70vh] grid place-items-center px-6">{children}</div>
+  );
 }
 
 function PublicPoll() {
@@ -50,11 +57,12 @@ function PublicPoll() {
   const [loaded, setLoaded] = useState<PublicResponse | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
 
-  // Map of questionId -> selected optionId
-  const [answers, setAnswers] = useState<Record<string, string>>({});
+  // single → string optionId | multiple → string[] of optionIds
+  const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [expired, setExpired] = useState(false);
 
   const [signedIn, setSignedIn] = useState(
     Boolean(authStore.get().accessToken),
@@ -64,10 +72,9 @@ function PublicPoll() {
     [],
   );
 
-  // Fetch poll on mount.
   useEffect(() => {
     let cancelled = false;
-    const load = async () => {
+    (async () => {
       try {
         const res = await api.get<{ data: PublicResponse }>(
           `/api/polls/public/${slug}`,
@@ -76,14 +83,11 @@ function PublicPoll() {
       } catch (err) {
         if (!cancelled) setLoadError(errorMessage(err, "Poll not found"));
       }
-    };
-    load();
+    })();
     return () => {
       cancelled = true;
     };
   }, [slug]);
-
-  // render branches
 
   if (loadError) {
     return (
@@ -102,8 +106,7 @@ function PublicPoll() {
 
   const { poll, accepting, resultsPublished } = loaded;
 
-  // Already published → send to the results page.
-  if (resultsPublished && !accepting) {
+  if (resultsPublished && (!accepting || expired)) {
     return (
       <Center>
         <Card className="p-10 text-center max-w-md">
@@ -125,7 +128,7 @@ function PublicPoll() {
     );
   }
 
-  if (!accepting) {
+  if (!accepting || expired) {
     return (
       <Center>
         <Card className="p-10 text-center max-w-md">
@@ -157,39 +160,6 @@ function PublicPoll() {
     );
   }
 
-  //  Form
-  const handleSelect = (questionId: string, optionId: string) =>
-    setAnswers((a) => ({ ...a, [questionId]: optionId }));
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitError(null);
-
-    // Client-side mandatory check.
-    for (const q of poll.questions) {
-      if (q.isMandatory && !answers[q.id]) {
-        setSubmitError(`Please answer: "${q.prompt}"`);
-        return;
-      }
-    }
-
-    setSubmitting(true);
-    try {
-      await api.post(`/api/polls/${poll.id}/responses`, {
-        answers: Object.entries(answers).map(([questionId, optionId]) => ({
-          questionId,
-          optionId,
-        })),
-      });
-      setSubmitted(true);
-    } catch (err) {
-      setSubmitError(errorMessage(err, "Could not submit response"));
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  // Authenticated mode + not signed in → block at the top.
   if (poll.responseMode === "authenticated" && !signedIn) {
     return (
       <Center>
@@ -214,24 +184,74 @@ function PublicPoll() {
     );
   }
 
+  const selectSingle = (qId: string, oId: string) =>
+    setAnswers((a) => ({ ...a, [qId]: oId }));
+
+  const toggleMulti = (qId: string, oId: string) =>
+    setAnswers((a) => {
+      const current = Array.isArray(a[qId]) ? (a[qId] as string[]) : [];
+      const next = current.includes(oId)
+        ? current.filter((id) => id !== oId)
+        : [...current, oId];
+      return { ...a, [qId]: next };
+    });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitError(null);
+
+    for (const q of poll.questions) {
+      const ans = answers[q.id];
+      const isEmpty =
+        q.type === "multiple" ? !Array.isArray(ans) || ans.length === 0 : !ans;
+      if (q.isMandatory && isEmpty) {
+        setSubmitError(`Please answer: "${q.prompt}"`);
+        return;
+      }
+    }
+
+    const payload: Array<{ questionId: string; optionId: string }> = [];
+    for (const [qId, val] of Object.entries(answers)) {
+      if (Array.isArray(val)) {
+        for (const oId of val) payload.push({ questionId: qId, optionId: oId });
+      } else if (val) {
+        payload.push({ questionId: qId, optionId: val });
+      }
+    }
+
+    setSubmitting(true);
+    try {
+      await api.post(`/api/polls/${poll.id}/responses`, { answers: payload });
+      setSubmitted(true);
+    } catch (err) {
+      setSubmitError(errorMessage(err, "Could not submit response"));
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <div className="relative min-h-[80vh] py-10 px-6 overflow-hidden">
       <Spotlight className="-top-40 left-1/4 opacity-60" />
       <div className="mx-auto max-w-2xl relative">
-        <Badge tone={poll.responseMode === "anonymous" ? "neutral" : "warning"}>
-          {poll.responseMode}
-        </Badge>
+        <div className="flex items-center gap-2 flex-wrap">
+          <Badge
+            tone={poll.responseMode === "anonymous" ? "neutral" : "warning"}
+          >
+            {poll.responseMode}
+          </Badge>
+          {poll.expiresAt && (
+            <Countdown
+              expiresAt={poll.expiresAt}
+              onExpire={() => setExpired(true)}
+            />
+          )}
+        </div>
         <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-fg mt-3">
           {poll.title}
         </h1>
         {poll.description && (
           <p className="text-muted mt-2">{poll.description}</p>
-        )}
-        {poll.expiresAt && (
-          <p className="text-xs text-muted mt-3 inline-flex items-center gap-1.5">
-            <Clock className="h-3 w-3" /> Closes{" "}
-            {new Date(poll.expiresAt).toLocaleString()}
-          </p>
         )}
 
         <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
@@ -245,12 +265,21 @@ function PublicPoll() {
                     </span>
                     {q.prompt}
                   </CardTitle>
-                  {q.isMandatory && <Badge tone="danger">Required</Badge>}
+                  <div className="flex items-center gap-2">
+                    {q.type === "multiple" && (
+                      <Badge tone="neutral">multi-select</Badge>
+                    )}
+                    {q.isMandatory && <Badge tone="danger">Required</Badge>}
+                  </div>
                 </div>
               </CardHeader>
               <CardBody className="space-y-2">
                 {q.options.map((o) => {
-                  const checked = answers[q.id] === o.id;
+                  const isMulti = q.type === "multiple";
+                  const checked = isMulti
+                    ? Array.isArray(answers[q.id]) &&
+                      (answers[q.id] as string[]).includes(o.id)
+                    : answers[q.id] === o.id;
                   return (
                     <label
                       key={o.id}
@@ -262,11 +291,15 @@ function PublicPoll() {
                       }
                     >
                       <input
-                        type="radio"
+                        type={isMulti ? "checkbox" : "radio"}
                         name={`q-${q.id}`}
                         value={o.id}
                         checked={checked}
-                        onChange={() => handleSelect(q.id, o.id)}
+                        onChange={() =>
+                          isMulti
+                            ? toggleMulti(q.id, o.id)
+                            : selectSingle(q.id, o.id)
+                        }
                         className="accent-[rgb(var(--pb-accent))]"
                       />
                       <span className="text-fg text-sm">{o.label}</span>
@@ -296,12 +329,6 @@ function PublicPoll() {
         </form>
       </div>
     </div>
-  );
-}
-
-function Center({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="min-h-[70vh] grid place-items-center px-6">{children}</div>
   );
 }
 
