@@ -1,4 +1,4 @@
-import { eq, sql, and } from "drizzle-orm";
+import { eq, sql, and, desc } from "drizzle-orm";
 import { db } from "../../common/db/index";
 import {
   pollsTable,
@@ -6,6 +6,7 @@ import {
   questionsTable,
   optionsTable,
   responseAnswersTable,
+  usersTable,
 } from "../../common/db/schema";
 import ApiError from "../../common/utils/api-error";
 
@@ -13,6 +14,7 @@ interface QuestionSummary {
   questionId: string;
   prompt: string;
   isMandatory: boolean;
+  type: "single" | "multiple";
   totalAnswers: number;
   options: Array<{
     optionId: string;
@@ -22,20 +24,26 @@ interface QuestionSummary {
   }>;
 }
 
+interface RespondentSummary {
+  responseId: string;
+  userId: string | null;
+  name: string | null;
+  email: string | null;
+  submittedAt: string;
+}
+
 interface AnalyticsResult {
   pollId: string;
   totalResponses: number;
   questions: QuestionSummary[];
-
   responsesOverTime: Array<{ date: string; count: number }>;
+  respondents?: RespondentSummary[];
 }
 
-/**
- * Returns analytics for a poll. The caller decides whether to authorize:
- * - creators should always get access
- * - public viewers should only get access when `resultsPublished` is true
- */
-const getAnalytics = async (pollId: string): Promise<AnalyticsResult> => {
+const getAnalytics = async (
+  pollId: string,
+  opts: { includeRespondents?: boolean } = {},
+): Promise<AnalyticsResult> => {
   const poll = await db
     .select({ id: pollsTable.id })
     .from(pollsTable)
@@ -43,7 +51,6 @@ const getAnalytics = async (pollId: string): Promise<AnalyticsResult> => {
     .limit(1);
   if (poll.length === 0) throw ApiError.notFound("Poll not found");
 
-  // Total response count.
   const totalRow = await db
     .select({ count: sql<number>`COUNT(*)::int` })
     .from(responsesTable)
@@ -55,6 +62,7 @@ const getAnalytics = async (pollId: string): Promise<AnalyticsResult> => {
       questionId: questionsTable.id,
       prompt: questionsTable.prompt,
       isMandatory: questionsTable.isMandatory,
+      type: questionsTable.type,
       questionPosition: questionsTable.position,
       optionId: optionsTable.id,
       label: optionsTable.label,
@@ -75,6 +83,7 @@ const getAnalytics = async (pollId: string): Promise<AnalyticsResult> => {
       questionsTable.id,
       questionsTable.prompt,
       questionsTable.isMandatory,
+      questionsTable.type,
       questionsTable.position,
       optionsTable.id,
       optionsTable.label,
@@ -82,7 +91,6 @@ const getAnalytics = async (pollId: string): Promise<AnalyticsResult> => {
     )
     .orderBy(questionsTable.position, optionsTable.position);
 
-  // Group rows by question.
   const byQuestion = new Map<string, QuestionSummary>();
   for (const r of rows) {
     let q = byQuestion.get(r.questionId);
@@ -91,6 +99,7 @@ const getAnalytics = async (pollId: string): Promise<AnalyticsResult> => {
         questionId: r.questionId,
         prompt: r.prompt,
         isMandatory: r.isMandatory,
+        type: r.type as "single" | "multiple",
         totalAnswers: 0,
         options: [],
       };
@@ -122,15 +131,42 @@ const getAnalytics = async (pollId: string): Promise<AnalyticsResult> => {
     .groupBy(sql`DATE_TRUNC('day', ${responsesTable.createdAt})`)
     .orderBy(sql`DATE_TRUNC('day', ${responsesTable.createdAt})`);
 
+  let respondents: RespondentSummary[] | undefined;
+  if (opts.includeRespondents) {
+    const respRows = await db
+      .select({
+        responseId: responsesTable.id,
+        userId: usersTable.id,
+        name: usersTable.name,
+        email: usersTable.email,
+        submittedAt: responsesTable.createdAt,
+      })
+      .from(responsesTable)
+      .leftJoin(usersTable, eq(usersTable.id, responsesTable.respondentId))
+      .where(eq(responsesTable.pollId, pollId))
+      .orderBy(desc(responsesTable.createdAt));
+
+    respondents = respRows.map((r) => ({
+      responseId: r.responseId,
+      userId: r.userId,
+      name: r.name,
+      email: r.email,
+      submittedAt: r.submittedAt.toISOString(),
+    }));
+  }
+
   return {
     pollId,
     totalResponses,
     questions: Array.from(byQuestion.values()),
-    responsesOverTime: timeRows.map((r) => ({
-      date: r.day,
-      count: r.count,
-    })),
+    responsesOverTime: timeRows.map((r) => ({ date: r.day, count: r.count })),
+    respondents,
   };
 };
 
-export { getAnalytics, type AnalyticsResult, type QuestionSummary };
+export {
+  getAnalytics,
+  type AnalyticsResult,
+  type QuestionSummary,
+  type RespondentSummary,
+};
