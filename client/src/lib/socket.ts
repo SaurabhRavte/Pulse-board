@@ -31,10 +31,6 @@ export interface PollClosedEvent {
   pollId: string;
 }
 
-/**
- * Subscribe to live updates for a single poll. Joins the poll room, attaches
- * the listener, and returns a cleanup that leaves the room and detaches.
- */
 export const subscribeToPoll = (
   pollId: string,
   handlers: {

@@ -11,13 +11,12 @@ const readInitial = (): Theme => {
   } catch {
     // ignore
   }
-  // Default to dark — this is the brand look
+  // Default to dark
   return "dark";
 };
 
 export const themeStore = createStore<Theme>(readInitial());
 
-// Apply theme class on the html element and persist.
 const apply = (t: Theme) => {
   if (typeof document !== "undefined") {
     document.documentElement.classList.toggle("dark", t === "dark");
@@ -29,7 +28,7 @@ const apply = (t: Theme) => {
   }
 };
 
-// Apply once on load.
+// Apply once on load
 apply(themeStore.get());
 themeStore.subscribe(apply);
 

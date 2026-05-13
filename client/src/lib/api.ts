@@ -7,7 +7,7 @@ const BASE_URL =
 
 export const api = axios.create({
   baseURL: BASE_URL,
-  withCredentials: true, // Send the refreshToken httpOnly cookie
+  withCredentials: true,
 });
 
 // Attach Bearer token to every request.
@@ -19,9 +19,7 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   return config;
 });
 
-/* -------------------------------------------------------------------------- */
-/*  401 → refresh once, retry, otherwise log out                              */
-/* -------------------------------------------------------------------------- */
+// 401 → refresh once, retry, otherwise log out
 
 let refreshing: Promise<string | null> | null = null;
 
@@ -76,9 +74,7 @@ api.interceptors.response.use(
   },
 );
 
-/* -------------------------------------------------------------------------- */
-/*  Helper for response shape                                                 */
-/* -------------------------------------------------------------------------- */
+// Helper for response shape
 
 export interface ApiEnvelope<T> {
   success: boolean;
@@ -86,7 +82,6 @@ export interface ApiEnvelope<T> {
   data: T;
 }
 
-/** Extracts the human-friendly message from an axios error. */
 export const errorMessage = (
   err: unknown,
   fallback = "Something went wrong",
