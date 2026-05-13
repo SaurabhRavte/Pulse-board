@@ -8,13 +8,6 @@ import { FullPageLoader } from "../components/loader";
 import { Button } from "../components/button";
 import { Card } from "../components/card";
 
-/**
- * Destination after the Google OAuth redirect. Clerk lands the user here
- * with `<AuthenticateWithRedirectCallback />` quietly finalising the session
- * in the background; once `useUser` reports signed-in, we POST to our own
- * /api/auth/clerk-sync to mint a JWT and persist a local session, then push
- * the user to /dashboard.
- */
 function SSOCallback() {
   const navigate = useNavigate();
   const { isLoaded, isSignedIn, user } = useUser();

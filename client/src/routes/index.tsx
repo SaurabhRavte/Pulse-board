@@ -70,7 +70,7 @@ function Landing() {
         </div>
       </section>
 
-      {/* -------------------- PROBLEM IT SOLVES -------------------- */}
+      {/* PROBLEM IT SOLVES */}
       <section className="relative mx-auto max-w-6xl px-6 py-20 border-t border-app">
         <div className="grid sm:grid-cols-2 gap-12 items-start">
           <div>

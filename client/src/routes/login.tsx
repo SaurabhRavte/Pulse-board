@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { useState } from "react";
 import { Link, useNavigate, createFileRoute } from "@tanstack/react-router";
 import { api, errorMessage } from "../lib/api";

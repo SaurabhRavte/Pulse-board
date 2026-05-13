@@ -56,7 +56,6 @@ function PublicPoll() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  // Local mirror of auth state, used to gate authenticated polls.
   const [signedIn, setSignedIn] = useState(
     Boolean(authStore.get().accessToken),
   );
@@ -84,7 +83,7 @@ function PublicPoll() {
     };
   }, [slug]);
 
-  /* ---------------- render branches ---------------- */
+  // render branches
 
   if (loadError) {
     return (
@@ -158,8 +157,7 @@ function PublicPoll() {
     );
   }
 
-  /* ---------------- form ---------------- */
-
+  //  Form
   const handleSelect = (questionId: string, optionId: string) =>
     setAnswers((a) => ({ ...a, [questionId]: optionId }));
 
