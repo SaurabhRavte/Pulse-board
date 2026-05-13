@@ -31,7 +31,13 @@ function RegisterPage() {
         };
       }>("/api/auth/login", { email, password });
       setSession(res.data.data.user, res.data.data.accessToken);
-      navigate({ to: "/dashboard" });
+      const params = new URLSearchParams(window.location.search);
+      const next = params.get("next");
+      navigate({
+        to:
+          next && next.startsWith("/") ? (next as "/dashboard") : "/dashboard",
+        replace: true,
+      });
     } catch (err) {
       setError(errorMessage(err, "Could not create your account"));
     } finally {

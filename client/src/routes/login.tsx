@@ -30,7 +30,13 @@ function LoginPage() {
       }>("/api/auth/login", { email, password });
       const { user, accessToken } = res.data.data;
       setSession(user, accessToken);
-      navigate({ to: "/dashboard" });
+      const params = new URLSearchParams(window.location.search);
+      const next = params.get("next");
+      navigate({
+        to:
+          next && next.startsWith("/") ? (next as "/dashboard") : "/dashboard",
+        replace: true,
+      });
     } catch (err) {
       setError(errorMessage(err, "Could not sign in"));
     } finally {

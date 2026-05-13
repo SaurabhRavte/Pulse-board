@@ -93,7 +93,15 @@ export function ClerkButton({
         if (cancelled) return;
         const { user: localUser, accessToken } = res.data.data;
         setSession(localUser, accessToken);
-        navigate({ to: "/dashboard" });
+        const next = sessionStorage.getItem("pb-login-next");
+        sessionStorage.removeItem("pb-login-next");
+        navigate({
+          to:
+            next && next.startsWith("/")
+              ? (next as "/dashboard")
+              : "/dashboard",
+          replace: true,
+        });
       } catch (err) {
         if (!cancelled) setError(errorMessage(err, "Could not link account"));
       }
@@ -109,6 +117,13 @@ export function ClerkButton({
     setBusy(true);
     setError(null);
     try {
+      const params = new URLSearchParams(window.location.search);
+      const next = params.get("next");
+      if (next && next.startsWith("/")) {
+        sessionStorage.setItem("pb-login-next", next);
+      } else {
+        sessionStorage.removeItem("pb-login-next");
+      }
       await signIn.authenticateWithRedirect({
         strategy: "oauth_google",
         redirectUrl: `${window.location.origin}/sso-callback`,

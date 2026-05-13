@@ -172,10 +172,10 @@ function PublicPoll() {
             This poll only accepts authenticated responses. Sign in to continue.
           </p>
           <div className="mt-5 flex items-center justify-center gap-2">
-            <Link to="/login">
+            <Link to="/login" search={{ next: `/p/${slug}` }}>
               <Button>Sign in</Button>
             </Link>
-            <Link to="/register">
+            <Link to="/register" search={{ next: `/p/${slug}` }}>
               <Button variant="outline">Create account</Button>
             </Link>
           </div>

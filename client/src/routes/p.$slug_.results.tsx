@@ -35,7 +35,7 @@ interface AnalyticsDTO {
 }
 
 function PublishedResults() {
-  const { slug } = useParams({ from: "/p/$slug/results" });
+  const { slug } = useParams({ from: "/p/$slug_/results" });
   const [analytics, setAnalytics] = useState<AnalyticsDTO | null>(null);
   const [error, setError] = useState<string | null>(null);
 

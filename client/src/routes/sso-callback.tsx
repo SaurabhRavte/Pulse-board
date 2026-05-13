@@ -35,7 +35,15 @@ function SSOCallback() {
         });
         if (cancelled) return;
         setSession(res.data.data.user, res.data.data.accessToken);
-        navigate({ to: "/dashboard", replace: true });
+        const next = sessionStorage.getItem("pb-login-next");
+        sessionStorage.removeItem("pb-login-next");
+        navigate({
+          to:
+            next && next.startsWith("/")
+              ? (next as "/dashboard")
+              : "/dashboard",
+          replace: true,
+        });
       } catch (err) {
         if (!cancelled) setError(errorMessage(err, "Could not finish sign-in"));
       }
