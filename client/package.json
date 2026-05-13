@@ -10,11 +10,19 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@clerk/clerk-react": "^5.61.3",
     "@tailwindcss/vite": "^4.3.0",
     "@tanstack/react-router": "^1.169.2",
     "@tanstack/react-router-devtools": "^1.166.13",
+    "axios": "^1.16.0",
+    "clsx": "^2.1.1",
+    "lucide-react": "^1.14.0",
+    "motion": "^12.38.0",
     "react": "^19.2.6",
+    "react-charts": "^2.0.0-beta.7",
     "react-dom": "^19.2.6",
+    "socket.io-client": "^4.8.3",
+    "tailwind-merge": "^3.6.0",
     "tailwindcss": "^4.3.0"
   },
   "devDependencies": {

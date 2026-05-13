@@ -5,7 +5,30 @@
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pulse Board - Live Polls For Feedback</title>
+  <meta name="description"
+    content="PulseBoard — live polls for feedback. Create polls, share a link, watch responses arrive in real time." />
+  <meta name="theme-color" content="#0a0a0a" />
+
+  <!-- Geist font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=Geist+Mono:wght@400;500;600&display=swap" />
+
+  <!-- Set the theme  -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("pb-theme");
+        if (t === "light") document.documentElement.classList.remove("dark");
+        else document.documentElement.classList.add("dark");
+      } catch (e) {
+        document.documentElement.classList.add("dark");
+      }
+    })();
+  </script>
+
+  <title>PulseBoard — Live Polls For Feedback</title>
 </head>
 
 <body>

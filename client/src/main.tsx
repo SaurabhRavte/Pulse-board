@@ -1,30 +1,41 @@
 import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
+import { ClerkProvider } from "@clerk/clerk-react";
 
 import "./index.css";
-
-// Import the generated route tree
 import { routeTree } from "./routeTree.gen";
 
-// Create router
 const router = createRouter({
   routeTree,
+  defaultPreload: "intent",
 });
 
-// Register router types
 declare module "@tanstack/react-router" {
   interface Register {
     router: typeof router;
   }
 }
 
-// Get root element
+const CLERK_PUB_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY as
+  | string
+  | undefined;
+
 const rootElement = document.getElementById("root")!;
 
-// Render app
+const App = () =>
+  CLERK_PUB_KEY ? (
+    <ClerkProvider publishableKey={CLERK_PUB_KEY} afterSignOutUrl="/">
+      <RouterProvider router={router} />
+    </ClerkProvider>
+  ) : (
+    // No Clerk key — the credentials flow still works; the Clerk button
+    // on the auth pages renders a friendly disabled state.
+    <RouterProvider router={router} />
+  );
+
 ReactDOM.createRoot(rootElement).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <App />
   </StrictMode>,
 );
