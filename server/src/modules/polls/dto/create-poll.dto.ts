@@ -4,6 +4,7 @@ import BaseDto from "../../../common/dto/base.dto";
 const QuestionSchema = z.object({
   prompt: z.string().trim().min(1, "Question prompt is required").max(500),
   isMandatory: z.boolean().default(true),
+  type: z.enum(["single", "multiple"]).default("single"),
   options: z
     .array(z.string().trim().min(1, "Option label is required").max(200))
     .min(2, "Each question needs at least 2 options")
@@ -15,7 +16,6 @@ class CreatePollDto extends BaseDto {
     title: z.string().trim().min(2, "Title is too short").max(200),
     description: z.string().trim().max(2000).optional().nullable(),
     responseMode: z.enum(["anonymous", "authenticated"]).default("anonymous"),
-    // ISO datetime, must be in the future (the service double-checks).
     expiresAt: z.string().datetime().optional().nullable(),
     questions: z
       .array(QuestionSchema)

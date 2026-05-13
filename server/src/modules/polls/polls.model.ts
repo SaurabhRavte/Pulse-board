@@ -19,6 +19,7 @@ interface CreatePollData {
   questions: Array<{
     prompt: string;
     isMandatory: boolean;
+    type: "single" | "multiple";
     options: string[];
   }>;
 }
@@ -45,6 +46,7 @@ const PollModel = {
             pollId: poll!.id,
             prompt: q.prompt,
             isMandatory: q.isMandatory,
+            type: q.type ?? "single",
             position: qIdx,
           })
           .returning();
@@ -167,7 +169,7 @@ const PollModel = {
       columns: { id: true },
       with: {
         questions: {
-          columns: { id: true, isMandatory: true },
+          columns: { id: true, isMandatory: true, type: true },
           with: { options: { columns: { id: true } } },
         },
       },

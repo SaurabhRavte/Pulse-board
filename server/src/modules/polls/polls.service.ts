@@ -16,6 +16,7 @@ interface CreatePollInput {
   questions: Array<{
     prompt: string;
     isMandatory: boolean;
+    type: "single" | "multiple";
     options: string[];
   }>;
 }
@@ -147,12 +148,19 @@ const submitResponse = async (input: SubmitInput) => {
 
   const questionIndex = new Map<
     string,
-    { id: string; isMandatory: boolean; optionIds: Set<string> }
+    {
+      id: string;
+      isMandatory: boolean;
+      type: "single" | "multiple";
+      optionIds: Set<string>;
+    }
   >();
+
   for (const q of full.questions) {
     questionIndex.set(q.id, {
       id: q.id,
       isMandatory: q.isMandatory,
+      type: q.type as "single" | "multiple",
       optionIds: new Set(q.options.map((o) => o.id)),
     });
   }
@@ -168,8 +176,8 @@ const submitResponse = async (input: SubmitInput) => {
         `Option ${a.optionId} does not belong to question ${a.questionId}`,
       );
     }
-    if (seen.has(a.questionId)) {
-      throw ApiError.badRequest("Each question may be answered only once");
+    if (q.type === "single" && seen.has(a.questionId)) {
+      throw ApiError.badRequest("Single-choice question got multiple answers");
     }
     seen.add(a.questionId);
   }
