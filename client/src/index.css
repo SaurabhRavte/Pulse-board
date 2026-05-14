@@ -84,10 +84,6 @@
   color: rgb(var(--pb-purple));
 }
 
-@utility text-yellow-pb {
-  color: rgb(var(--pb-yellow));
-}
-
 @utility bg-lime {
   background-color: rgb(var(--pb-lime));
 }
@@ -150,51 +146,8 @@ textarea {
   background-size: 56px 56px;
 }
 
-.pb-lime-glow {
-  background:
-    radial-gradient(40% 50% at 30% 40%, rgb(var(--pb-lime) / 0.22), transparent 70%),
-    radial-gradient(40% 50% at 70% 60%, rgb(var(--pb-cyan) / 0.14), transparent 70%);
-  filter: blur(60px);
-}
-
 .pb-glow-primary {
   box-shadow: 0 0 0 1px rgb(var(--pb-lime) / 0.5), 0 8px 32px rgb(var(--pb-lime) / 0.35);
-}
-
-@keyframes pb-spotlight {
-  0% {
-    opacity: 0;
-    transform: translate(-72%, -62%) scale(0.5);
-  }
-
-  100% {
-    opacity: 1;
-    transform: translate(-50%, -40%) scale(1);
-  }
-}
-
-.pb-spotlight {
-  animation: pb-spotlight 2s ease 0.2s 1 forwards;
-}
-
-@keyframes pb-beam-x {
-  0% {
-    transform: translateX(-100%);
-  }
-
-  100% {
-    transform: translateX(100vw);
-  }
-}
-
-@keyframes pb-beam-y {
-  0% {
-    transform: translateY(-100%);
-  }
-
-  100% {
-    transform: translateY(100vh);
-  }
 }
 
 ::-webkit-scrollbar {

@@ -1,4 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
+import { useState } from "react";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import {
   ArrowRight,
@@ -11,9 +12,11 @@ import {
   ShieldCheck,
   ListChecks,
   Code2,
+  Plus,
 } from "lucide-react";
 import { Button } from "../components/button";
 import { Card } from "../components/card";
+import { Logo } from "../components/logo";
 
 function Landing() {
   return (
@@ -22,11 +25,11 @@ function Landing() {
       <section className="relative overflow-hidden">
         <div
           aria-hidden
-          className="absolute inset-0 bg-dot-pattern opacity-50"
+          className="absolute inset-0 bg-grid-pattern opacity-30"
         />
         <div
           aria-hidden
-          className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[700px] pb-lime-glow"
+          className="absolute inset-x-0 top-0 h-[400px] bg-app [mask-image:linear-gradient(to_bottom,transparent,black_10%,black_70%,transparent)]"
         />
 
         <div className="mx-auto max-w-6xl px-6 pt-20 pb-24 sm:pt-28 sm:pb-32 relative">
@@ -40,23 +43,13 @@ function Landing() {
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tighter text-fg mt-6 leading-[1.05]">
                 Live polls.
                 <br />
-                Without the{" "}
-                <span
-                  className="bg-clip-text text-transparent"
-                  style={{
-                    backgroundImage:
-                      "linear-gradient(120deg, rgb(var(--pb-lime)), rgb(var(--pb-cyan)))",
-                  }}
-                >
-                  polling
-                </span>
-                .
+                Without the <span className="text-lime">polling</span>.
               </h1>
 
               <p className="mt-5 text-sm sm:text-base text-muted max-w-xl mx-auto lg:mx-0 leading-relaxed">
                 PulseBoard streams every vote to your screen the moment it lands
-                — over WebSocket, not HTTP polling. Anonymous respondents by
-                default. Self-hostable. No signup wall for the room.
+                &mdash; over WebSocket, not HTTP polling. Anonymous respondents
+                by default. Self-hostable. No signup wall for the room.
               </p>
 
               <div className="mt-8 flex flex-col sm:flex-row items-center gap-3 justify-center lg:justify-start">
@@ -105,10 +98,6 @@ function Landing() {
             </div>
 
             <div className="relative">
-              <div
-                aria-hidden
-                className="absolute -inset-6 rounded-3xl bg-[rgb(var(--pb-lime)/0.08)] blur-2xl"
-              />
               <HeroMock />
             </div>
           </div>
@@ -129,14 +118,14 @@ function Landing() {
         <div className="grid sm:grid-cols-3 gap-4">
           <StepCard
             num="01"
-            color="cyan"
+            color="orange"
             icon={<Pencil className="h-4 w-4" />}
             title="WRITE"
             description="Single choice, multi-select, mandatory toggles. Set an expiry if the room is on a clock."
           />
           <StepCard
             num="02"
-            color="orange"
+            color="cyan"
             icon={<Send className="h-4 w-4" />}
             title="SHARE"
             description="A short URL or a 6-char code your audience types into the Join page. No signup for them."
@@ -175,31 +164,69 @@ function Landing() {
         </div>
       </section>
 
+      {/* FAQ */}
+      <section className="relative mx-auto max-w-3xl px-6 py-20 border-t border-app">
+        <div className="mb-10 text-center">
+          <p className="text-[11px] uppercase tracking-[0.2em] text-muted mb-3">
+            // frequently_asked
+          </p>
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-fg">
+            Questions, answered.
+          </h2>
+        </div>
+
+        <div className="space-y-3">
+          <Faq color="lime" question="Is PulseBoard free to use?">
+            Yes. PulseBoard is open source and free forever &mdash; it&apos;s a
+            hackathon project, not a startup. Run it on your own server, fork
+            the repo, or use the hosted demo. There are no paid plans, no usage
+            caps, and no upsell screens.
+          </Faq>
+
+          <Faq color="cyan" question="Do my respondents need an account?">
+            Only if you want them to. Polls are anonymous by default &mdash;
+            just share the link and anyone can vote. Switch a poll to
+            &quot;authenticated&quot; mode if you need verified responses, and
+            only signed-in users can submit. The creator sees exactly who
+            responded in either case.
+          </Faq>
+
+          <Faq
+            color="orange"
+            question="How are responses live without me refreshing?"
+          >
+            PulseBoard runs a WebSocket per poll. The moment a vote hits the
+            database, the server pushes the new tallies down the socket to every
+            connected viewer &mdash; creator and audience. No setInterval, no
+            polling, no manual refresh. Latency is usually under a second.
+          </Faq>
+
+          <Faq color="purple" question="Can I close or expire a poll?">
+            Both. You can set an &quot;expires at&quot; time when creating the
+            poll &mdash; the countdown shows up live on the respondent&apos;s
+            screen, and the server refuses votes once it hits zero. You can also
+            close a poll manually from the analytics page at any time, and
+            publish results to a public read-only page when you&apos;re ready.
+          </Faq>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="relative mx-auto max-w-6xl px-6 py-16">
-        <Card className="relative overflow-hidden p-10 sm:p-14 text-center">
-          <div
-            aria-hidden
-            className="absolute inset-x-0 top-0 h-px"
-            style={{
-              background:
-                "linear-gradient(90deg, transparent, rgb(var(--pb-lime)), rgb(var(--pb-cyan)), rgb(var(--pb-purple)), transparent)",
-            }}
-          />
-          <div
-            aria-hidden
-            className="absolute -top-40 left-1/2 -translate-x-1/2 w-[600px] h-[600px] pb-lime-glow"
-          />
+        <Card className="relative overflow-hidden p-10 sm:p-14 text-center border-t border-lime">
           <div className="relative">
+            <div className="flex justify-center mb-4">
+              <Logo size={40} className="text-fg" />
+            </div>
             <p className="text-[11px] uppercase tracking-[0.2em] text-lime mb-3">
               // ready_when_you_are
             </p>
             <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-fg">
-              Run it in the room you're in.
+              Run it in the room you&apos;re in.
             </h2>
             <p className="mt-3 max-w-md mx-auto text-sm text-muted">
-              Free forever — it's just a repo. Fork it, host it, tweak the
-              schema, ship your own version.
+              Free forever &mdash; it&apos;s just a repo. Fork it, host it,
+              tweak the schema, ship your own version.
             </p>
 
             <div className="mt-7 flex items-center justify-center gap-3 flex-wrap">
@@ -238,7 +265,6 @@ function Landing() {
 }
 
 type AccentColor = "lime" | "cyan" | "orange" | "pink" | "purple";
-
 const colorVars: Record<AccentColor, string> = {
   lime: "var(--pb-lime)",
   cyan: "var(--pb-cyan)",
@@ -262,20 +288,10 @@ function StepCard({
 }) {
   const v = colorVars[color];
   return (
-    <Card
-      className="p-6 relative transition-colors group"
-      style={{ ["--c" as string]: `rgb(${v})` }}
-    >
-      <div
-        aria-hidden
-        className="absolute inset-x-0 top-0 h-px opacity-40"
-        style={{
-          background: `linear-gradient(90deg, transparent, rgb(${v}), transparent)`,
-        }}
-      />
+    <Card className="p-6 relative transition-colors group">
       <div className="flex items-start justify-between mb-6">
         <div
-          className="h-10 w-10 grid place-items-center rounded-md border transition-all group-hover:scale-105"
+          className="h-10 w-10 grid place-items-center rounded-md border transition-transform group-hover:scale-105"
           style={{
             color: `rgb(${v})`,
             background: `rgb(${v} / 0.10)`,
@@ -318,11 +334,57 @@ function FeatureChip({
   );
 }
 
+function Faq({
+  color,
+  question,
+  children,
+}: {
+  color: AccentColor;
+  question: string;
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(false);
+  const v = colorVars[color];
+  return (
+    <div
+      className="rounded-lg border bg-elev overflow-hidden transition-colors"
+      style={{
+        borderColor: open ? `rgb(${v} / 0.4)` : "rgb(var(--pb-border))",
+      }}
+    >
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="w-full flex items-center justify-between gap-4 p-5 text-left"
+      >
+        <span className="flex items-center gap-3 text-sm font-medium text-fg">
+          <span
+            className="h-1.5 w-1.5 rounded-full"
+            style={{ background: `rgb(${v})` }}
+          />
+          {question}
+        </span>
+        <Plus
+          className={
+            "h-4 w-4 text-muted transition-transform " +
+            (open ? "rotate-45" : "")
+          }
+        />
+      </button>
+      {open && (
+        <div className="px-5 pb-5 text-sm text-muted leading-relaxed pl-11">
+          {children}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function HeroMock() {
   const opts = [
-    { label: "shipped on time", pct: 64, color: "lime" as AccentColor },
-    { label: "slipped a little", pct: 22, color: "cyan" as AccentColor },
-    { label: "significantly delayed", pct: 14, color: "orange" as AccentColor },
+    { label: "Ladakh", pct: 64, color: "lime" as AccentColor },
+    { label: "Uttarakhand", pct: 22, color: "pink" as AccentColor },
+    { label: "Goa", pct: 14, color: "purple" as AccentColor },
   ];
 
   return (
@@ -330,18 +392,18 @@ function HeroMock() {
       <div className="flex items-center justify-between mb-4 pb-3 border-b border-app">
         <div className="flex items-center gap-2">
           <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full rounded-full bg-[rgb(var(--pb-lime))] opacity-75 animate-ping" />
+            <span className="absolute inline-flex h-full w-full rounded-full bg-lime opacity-75 animate-ping" />
             <span className="relative inline-flex rounded-full h-2 w-2 bg-lime" />
           </span>
           <span className="text-[10px] uppercase tracking-widest text-lime font-bold">
-            live · 128 votes
+            live &middot; 128 votes
           </span>
         </div>
-        <span className="text-[10px] text-muted">poll/q1-retro</span>
+        <span className="text-[10px] text-muted"></span>
       </div>
 
       <p className="text-fg font-medium text-sm">
-        how did the team feel about Q1 delivery?
+        What’s your dream travel destination in india?
       </p>
 
       <div className="mt-4 space-y-3">
@@ -361,11 +423,7 @@ function HeroMock() {
               <div className="h-1.5 w-full rounded-full bg-app overflow-hidden">
                 <div
                   className="h-full rounded-full transition-all duration-700"
-                  style={{
-                    width: `${o.pct}%`,
-                    background: `rgb(${v})`,
-                    boxShadow: `0 0 12px rgb(${v} / 0.6)`,
-                  }}
+                  style={{ width: `${o.pct}%`, background: `rgb(${v})` }}
                 />
               </div>
             </div>

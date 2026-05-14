@@ -1,12 +1,12 @@
 /* eslint-disable react-refresh/only-export-components */
 import { useState } from "react";
 import { Link, useNavigate, createFileRoute } from "@tanstack/react-router";
-import { ArrowRight, KeyRound } from "lucide-react";
+import { ArrowRight, Link2 } from "lucide-react";
 import { Protected } from "../components/protected";
 import { Button } from "../components/button";
 import { Input, Label } from "../components/input";
 import { Card } from "../components/card";
-import { Spotlight } from "../components/spotlight";
+import { extractSlug } from "../lib/extract-slug";
 
 function JoinInner() {
   const navigate = useNavigate();
@@ -16,42 +16,49 @@ function JoinInner() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    const trimmed = code
-      .trim()
-      .replace(/^\/p\//, "")
-      .split("/")[0];
-    if (!trimmed || trimmed.length < 4) {
-      setError("Enter a valid poll code.");
+    const slug = extractSlug(code);
+    if (!slug) {
+      setError("Paste a poll link or enter a valid code (4+ characters).");
       return;
     }
-    navigate({ to: "/p/$slug", params: { slug: trimmed } });
+    navigate({ to: "/p/$slug", params: { slug } });
   };
 
   return (
     <div className="relative min-h-[70vh] grid place-items-center px-6 overflow-hidden">
-      <Spotlight className="-top-40 left-1/4 opacity-60" />
-      <Card className="relative w-full max-w-md p-8">
-        <div className="h-10 w-10 grid place-items-center rounded-lg bg-app border border-app text-fg mb-4">
-          <KeyRound className="h-5 w-5" />
+      <div
+        aria-hidden
+        className="absolute inset-0 bg-grid-pattern opacity-20"
+      />
+      <Card className="relative w-full max-w-md p-8 bg-elev">
+        <div
+          className="h-10 w-10 grid place-items-center rounded-md border"
+          style={{
+            color: "rgb(var(--pb-lime))",
+            background: "rgb(var(--pb-lime) / 0.10)",
+            borderColor: "rgb(var(--pb-lime) / 0.35)",
+          }}
+        >
+          <Link2 className="h-5 w-5" />
         </div>
-        <h1 className="text-2xl font-semibold tracking-tight text-fg">
+        <h1 className="text-2xl font-bold tracking-tight text-fg mt-4">
           Join a poll
         </h1>
         <p className="text-sm text-muted mt-2">
-          Enter the code you received to open the poll.
+          Paste the full poll link or just the short code.
         </p>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <div>
-            <Label htmlFor="code">Poll code</Label>
+            <Label htmlFor="code">Link or code</Label>
             <Input
               id="code"
               required
               autoFocus
-              placeholder="e.g. nKzA4_x9q-Vp"
+              placeholder="https://pulseboard.app/p/abc123 or just abc123"
               value={code}
               onChange={(e) => setCode(e.target.value)}
-              className="font-mono"
+              className="font-mono text-sm"
             />
             {error && (
               <p className="text-xs text-[rgb(var(--pb-danger))] mt-1.5">
@@ -62,7 +69,7 @@ function JoinInner() {
           <Button
             type="submit"
             size="lg"
-            className="w-full"
+            className="w-full pb-glow-primary"
             rightIcon={<ArrowRight className="h-4 w-4" />}
           >
             Open poll
@@ -73,7 +80,7 @@ function JoinInner() {
           Have your own polls?{" "}
           <Link
             to="/dashboard"
-            className="text-fg underline underline-offset-4"
+            className="text-fg underline underline-offset-4 hover:text-lime"
           >
             Go to dashboard
           </Link>
@@ -92,6 +99,4 @@ function JoinPage() {
 }
 
 // @ts-ignore — typed paths come from the auto-generated routeTree.gen.ts
-export const Route = createFileRoute("/join")({
-  component: JoinPage,
-});
+export const Route = createFileRoute("/join")({ component: JoinPage });

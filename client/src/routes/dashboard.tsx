@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import { useEffect, useState } from "react";
-import { Link, createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
   BarChart3,
   Clock,
@@ -8,6 +8,8 @@ import {
   ExternalLink,
   Plus,
   Trash2,
+  ArrowRight,
+  Link2,
 } from "lucide-react";
 import { api, errorMessage } from "../lib/api";
 import { Protected } from "../components/protected";
@@ -19,7 +21,9 @@ import {
   CardTitle,
   Badge,
 } from "../components/card";
+import { Input } from "../components/input";
 import { Spinner } from "../components/loader";
+import { extractSlug } from "../lib/extract-slug";
 
 interface PollListItem {
   id: string;
@@ -33,23 +37,77 @@ interface PollListItem {
   responseCount: number;
 }
 
+function JoinPanel() {
+  const navigate = useNavigate();
+  const [code, setCode] = useState("");
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    const slug = extractSlug(code);
+    if (!slug) {
+      setError("Paste a valid poll link or code");
+      return;
+    }
+    navigate({ to: "/p/$slug", params: { slug } });
+  };
+
+  return (
+    <Card className="p-5">
+      <div className="flex items-center gap-3 mb-3">
+        <div
+          className="h-9 w-9 grid place-items-center rounded-md border"
+          style={{
+            color: "rgb(var(--pb-cyan))",
+            background: "rgb(var(--pb-cyan) / 0.10)",
+            borderColor: "rgb(var(--pb-cyan) / 0.35)",
+          }}
+        >
+          <Link2 className="h-4 w-4" />
+        </div>
+        <div>
+          <h3 className="text-sm font-bold text-fg tracking-tight">
+            Join a poll
+          </h3>
+          <p className="text-[11px] text-muted">
+            Paste a poll link or enter the short code.
+          </p>
+        </div>
+      </div>
+      <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2">
+        <Input
+          placeholder="https://pulseboard.app/p/abc123 or abc123"
+          value={code}
+          onChange={(e) => setCode(e.target.value)}
+          className="font-mono text-sm flex-1"
+        />
+        <Button type="submit" rightIcon={<ArrowRight className="h-4 w-4" />}>
+          Open poll
+        </Button>
+      </form>
+      {error && (
+        <p className="text-xs text-[rgb(var(--pb-danger))] mt-2">{error}</p>
+      )}
+    </Card>
+  );
+}
+
 function DashboardInner() {
   const [polls, setPolls] = useState<PollListItem[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
 
-  // Fetch on mount.
   useEffect(() => {
     let cancelled = false;
-    const load = async () => {
+    (async () => {
       try {
         const res = await api.get<{ data: PollListItem[] }>("/api/polls");
         if (!cancelled) setPolls(res.data.data);
       } catch (err) {
         if (!cancelled) setError(errorMessage(err, "Could not load polls"));
       }
-    };
-    load();
+    })();
     return () => {
       cancelled = true;
     };
@@ -70,27 +128,37 @@ function DashboardInner() {
 
   const handleCopyLink = async (slug: string) => {
     try {
-      const url = `${window.location.origin}/p/${slug}`;
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(
+        `${window.location.origin}/p/${slug}`,
+      );
     } catch {
-      // ignore
+      /* ignore */
     }
   };
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-10">
-      <div className="flex items-end justify-between gap-4 mb-8 flex-wrap">
+      <div className="flex items-end justify-between gap-4 mb-6 flex-wrap">
         <div>
-          <p className="text-xs uppercase tracking-widest text-muted mb-1.5">
-            Dashboard
+          <p className="text-[11px] uppercase tracking-[0.2em] text-muted mb-1.5">
+            // dashboard
           </p>
-          <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-fg">
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-fg">
             Your polls
           </h1>
         </div>
         <Link to="/polls/new">
-          <Button leftIcon={<Plus className="h-4 w-4" />}>New poll</Button>
+          <Button
+            leftIcon={<Plus className="h-4 w-4" />}
+            className="pb-glow-primary"
+          >
+            New poll
+          </Button>
         </Link>
+      </div>
+
+      <div className="mb-8">
+        <JoinPanel />
       </div>
 
       {polls === null && !error && (
@@ -107,7 +175,7 @@ function DashboardInner() {
 
       {polls && polls.length === 0 && (
         <Card className="p-12 text-center">
-          <h2 className="text-lg font-semibold text-fg">No polls yet</h2>
+          <h2 className="text-lg font-bold text-fg">No polls yet</h2>
           <p className="text-sm text-muted mt-2 max-w-md mx-auto">
             Create your first poll to share a public link and start collecting
             responses live.
@@ -151,7 +219,7 @@ function DashboardInner() {
                   {p.responseCount === 1 ? "response" : "responses"}
                   {p.expiresAt && (
                     <>
-                      <span aria-hidden>·</span>
+                      <span aria-hidden>&middot;</span>
                       <Clock className="h-3 w-3" />
                       <span>
                         expires{" "}
@@ -224,6 +292,4 @@ function Dashboard() {
 }
 
 // @ts-ignore — typed paths come from the auto-generated routeTree.gen.ts
-export const Route = createFileRoute("/dashboard")({
-  component: Dashboard,
-});
+export const Route = createFileRoute("/dashboard")({ component: Dashboard });

@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Activity, LogOut, LayoutDashboard, Plus } from "lucide-react";
+import { LogOut, LayoutDashboard, Plus, KeyRound } from "lucide-react";
 import { authStore, clearSession, type AuthUser } from "../lib/auth";
 import { api } from "../lib/api";
 import { cn } from "../lib/cn";
 import { Button } from "./button";
 import { ThemeToggle } from "./theme-toggle";
+import { Logo } from "./logo";
 
 export function FloatingNavbar() {
   const [user, setUser] = useState<AuthUser | null>(authStore.get().user);
@@ -17,8 +18,7 @@ export function FloatingNavbar() {
     let lastY = window.scrollY;
     const onScroll = () => {
       const currentY = window.scrollY;
-      const goingDown = currentY > lastY && currentY > 80;
-      setHidden(goingDown);
+      setHidden(currentY > lastY && currentY > 80);
       lastY = currentY;
     };
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -29,35 +29,23 @@ export function FloatingNavbar() {
     try {
       await api.post("/api/auth/logout");
     } catch {
-      // ignore
+      /* ignore */
     }
     clearSession();
-
     window.location.href = "/";
   };
 
   return (
     <div
       className={cn(
-        "fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[min(96%,72rem)]",
-        "transition-transform duration-300",
+        "fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[min(96%,72rem)] transition-transform duration-300",
         hidden ? "translate-y-[-140%] -translate-x-1/2" : "",
       )}
     >
-      <nav
-        className={cn(
-          "flex items-center gap-2 sm:gap-4 px-3 sm:px-5 py-2.5",
-          "rounded-full border border-app bg-app/70 backdrop-blur-xl",
-          "shadow-[0_8px_30px_rgb(0_0_0/0.12)]",
-        )}
-      >
+      <nav className="flex items-center gap-2 sm:gap-4 px-3 sm:px-5 py-2.5 rounded-full border border-app bg-app/80 backdrop-blur-xl shadow-[0_8px_30px_rgb(0_0_0/0.25)]">
         <Link to="/" className="flex items-center gap-2 pr-2 sm:pr-3">
-          <span className="grid h-7 w-7 place-items-center rounded-md bg-[rgb(var(--pb-accent))] text-[rgb(var(--pb-accent-fg))]">
-            <Activity className="h-4 w-4" />
-          </span>
-          <span className="font-semibold tracking-tight text-fg">
-            PulseBoard
-          </span>
+          <Logo size={22} className="text-fg" />
+          <span className="font-bold tracking-tight text-fg">PulseBoard</span>
         </Link>
 
         <div className="hidden sm:flex items-center gap-1 text-sm text-muted">
@@ -68,21 +56,33 @@ export function FloatingNavbar() {
             Home
           </Link>
           {user && (
-            <Link
-              to="/dashboard"
-              className="px-3 py-1.5 rounded-full hover:text-fg hover:bg-elev transition-colors [&.active]:text-fg [&.active]:bg-elev"
-            >
-              Dashboard
-            </Link>
+            <>
+              <Link
+                to="/dashboard"
+                className="px-3 py-1.5 rounded-full hover:text-fg hover:bg-elev transition-colors [&.active]:text-fg [&.active]:bg-elev"
+              >
+                Dashboard
+              </Link>
+              <Link
+                to="/join"
+                className="px-3 py-1.5 rounded-full hover:text-fg hover:bg-elev transition-colors [&.active]:text-fg [&.active]:bg-elev"
+              >
+                Join
+              </Link>
+            </>
           )}
         </div>
 
         <div className="flex-1" />
-
         <ThemeToggle />
 
         {user ? (
           <>
+            <Link to="/join" className="sm:hidden">
+              <Button size="sm" variant="outline">
+                <KeyRound className="h-4 w-4" />
+              </Button>
+            </Link>
             <Link to="/polls/new" className="hidden sm:block">
               <Button size="sm" leftIcon={<Plus className="h-4 w-4" />}>
                 New poll
