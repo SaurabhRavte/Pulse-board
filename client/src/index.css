@@ -1,45 +1,49 @@
 @import "tailwindcss";
-
-
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300..700;1,300..700&display=swap');
 
 @theme {
-  --font-sans:
-    "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
-  --font-mono:
-    "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    monospace;
+  --font-sans: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-mono: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
-/* Light theme (default values on :root) */
 :root {
-  --pb-bg: 255 255 255;
-  --pb-bg-elev: 250 250 250;
+  --pb-bg: 252 252 252;
+  --pb-bg-elev: 255 255 255;
   --pb-fg: 10 10 10;
-  --pb-fg-muted: 115 115 115;
-  --pb-border: 229 229 229;
-  --pb-accent: 10 10 10;
-  --pb-accent-fg: 255 255 255;
-  --pb-ring: 64 64 64;
+  --pb-fg-muted: 100 100 100;
+  --pb-border: 230 230 230;
+  --pb-accent: 132 204 22;
+  --pb-accent-fg: 0 0 0;
+  --pb-lime: 132 204 22;
+  --pb-cyan: 8 145 178;
+  --pb-orange: 234 88 12;
+  --pb-pink: 219 39 119;
+  --pb-purple: 147 51 234;
+  --pb-yellow: 202 138 4;
   --pb-success: 22 163 74;
   --pb-danger: 220 38 38;
+  --pb-ring: 132 204 22;
 }
 
-/* Dark theme — applied by adding `.dark` on <html> */
 .dark {
-  --pb-bg: 10 10 10;
-  --pb-bg-elev: 23 23 23;
+  --pb-bg: 0 0 0;
+  --pb-bg-elev: 14 14 14;
   --pb-fg: 250 250 250;
-  --pb-fg-muted: 163 163 163;
-  --pb-border: 38 38 38;
-  --pb-accent: 250 250 250;
-  --pb-accent-fg: 10 10 10;
-  --pb-ring: 212 212 212;
-  --pb-success: 34 197 94;
+  --pb-fg-muted: 140 140 140;
+  --pb-border: 32 32 32;
+  --pb-accent: 200 245 65;
+  --pb-accent-fg: 0 0 0;
+  --pb-lime: 200 245 65;
+  --pb-cyan: 34 211 238;
+  --pb-orange: 255 130 50;
+  --pb-pink: 236 72 153;
+  --pb-purple: 168 85 247;
+  --pb-yellow: 253 224 71;
+  --pb-success: 74 222 128;
   --pb-danger: 248 113 113;
+  --pb-ring: 200 245 65;
 }
 
-/* Tailwind v4 lets us define utility shortcuts via @utility */
 @utility bg-app {
   background-color: rgb(var(--pb-bg));
 }
@@ -56,6 +60,54 @@
   color: rgb(var(--pb-fg-muted));
 }
 
+@utility text-accent {
+  color: rgb(var(--pb-accent));
+}
+
+@utility text-lime {
+  color: rgb(var(--pb-lime));
+}
+
+@utility text-orange {
+  color: rgb(var(--pb-orange));
+}
+
+@utility text-cyan {
+  color: rgb(var(--pb-cyan));
+}
+
+@utility text-pink {
+  color: rgb(var(--pb-pink));
+}
+
+@utility text-purple {
+  color: rgb(var(--pb-purple));
+}
+
+@utility text-yellow-pb {
+  color: rgb(var(--pb-yellow));
+}
+
+@utility bg-lime {
+  background-color: rgb(var(--pb-lime));
+}
+
+@utility bg-orange {
+  background-color: rgb(var(--pb-orange));
+}
+
+@utility bg-cyan {
+  background-color: rgb(var(--pb-cyan));
+}
+
+@utility bg-pink {
+  background-color: rgb(var(--pb-pink));
+}
+
+@utility bg-purple {
+  background-color: rgb(var(--pb-purple));
+}
+
 @utility border-app {
   border-color: rgb(var(--pb-border));
 }
@@ -64,7 +116,6 @@
   --tw-ring-color: rgb(var(--pb-ring));
 }
 
-/* Base resets */
 html,
 body,
 #root {
@@ -72,31 +123,44 @@ body,
 }
 
 body {
-  font-family: var(--font-sans);
+  font-family: "Roboto Mono", ui-monospace, monospace;
   background-color: rgb(var(--pb-bg));
   color: rgb(var(--pb-fg));
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  letter-spacing: -0.01em;
 }
 
-/* Subtle dotted background pattern used on hero + auth pages */
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
 .bg-dot-pattern {
-  background-image: radial-gradient(rgb(var(--pb-border)) 1px,
-      transparent 1px);
+  background-image: radial-gradient(rgb(var(--pb-fg-muted) / 0.18) 1px, transparent 1px);
   background-size: 24px 24px;
-  background-position: 0 0;
 }
 
-/* Grid pattern used on dashboard / dense pages */
 .bg-grid-pattern {
   background-image:
-    linear-gradient(to right, rgb(var(--pb-border) / 0.4) 1px, transparent 1px),
-    linear-gradient(to bottom, rgb(var(--pb-border) / 0.4) 1px, transparent 1px);
+    linear-gradient(to right, rgb(var(--pb-border) / 0.6) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(var(--pb-border) / 0.6) 1px, transparent 1px);
   background-size: 56px 56px;
 }
 
-/* Aceternity-style soft pulsing glow used behind the hero headline */
+.pb-lime-glow {
+  background:
+    radial-gradient(40% 50% at 30% 40%, rgb(var(--pb-lime) / 0.22), transparent 70%),
+    radial-gradient(40% 50% at 70% 60%, rgb(var(--pb-cyan) / 0.14), transparent 70%);
+  filter: blur(60px);
+}
+
+.pb-glow-primary {
+  box-shadow: 0 0 0 1px rgb(var(--pb-lime) / 0.5), 0 8px 32px rgb(var(--pb-lime) / 0.35);
+}
+
 @keyframes pb-spotlight {
   0% {
     opacity: 0;
@@ -113,7 +177,6 @@ body {
   animation: pb-spotlight 2s ease 0.2s 1 forwards;
 }
 
-/* Beam animation for background-beams component */
 @keyframes pb-beam-x {
   0% {
     transform: translateX(-100%);
@@ -134,7 +197,6 @@ body {
   }
 }
 
-/* A clean scrollbar that matches the theme */
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
@@ -153,14 +215,12 @@ body {
   background: rgb(var(--pb-fg-muted));
 }
 
-/* Selection */
 ::selection {
-  background: rgb(var(--pb-fg));
-  color: rgb(var(--pb-bg));
+  background: rgb(var(--pb-accent));
+  color: rgb(var(--pb-accent-fg));
 }
 
-/* Disable Clerk's default UI font so the modal matches the page */
 .cl-rootBox,
 .cl-card {
-  font-family: var(--font-sans) !important;
+  font-family: "Roboto Mono", monospace !important;
 }
