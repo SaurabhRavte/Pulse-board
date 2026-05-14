@@ -4,15 +4,13 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import {
   ArrowRight,
   KeyRound,
-  Pencil,
-  Send,
-  Radio,
   Star,
-  Zap,
+  Plus,
+  Radio,
   ShieldCheck,
   ListChecks,
   Code2,
-  Plus,
+  Check,
 } from "lucide-react";
 import { Button } from "../components/button";
 import { Card } from "../components/card";
@@ -32,18 +30,18 @@ function Landing() {
           className="absolute inset-x-0 top-0 h-[400px] bg-app [mask-image:linear-gradient(to_bottom,transparent,black_10%,black_70%,transparent)]"
         />
 
-        <div className="mx-auto max-w-6xl px-6 pt-20 pb-24 sm:pt-28 sm:pb-32 relative">
+        <div className="mx-auto max-w-6xl px-6 pt-20 pb-20 sm:pt-28 sm:pb-24 relative">
           <div className="grid lg:grid-cols-[1.1fr_1fr] gap-12 lg:gap-16 items-center">
             <div className="text-center lg:text-left">
-              <span className="inline-flex items-center gap-2 rounded-full border border-[rgb(var(--pb-lime)/0.4)] bg-[rgb(var(--pb-lime)/0.08)] px-3 py-1 text-[11px] font-medium text-lime tracking-wide">
-                <span className="h-1.5 w-1.5 rounded-full bg-lime animate-pulse" />
+              <span className="inline-flex items-center gap-2 rounded-full border border-[rgb(var(--pb-red)/0.4)] bg-[rgb(var(--pb-red)/0.10)] px-3 py-1 text-[11px] font-medium text-red-pb tracking-wide">
+                <span className="h-1.5 w-1.5 rounded-full bg-red-pb animate-pulse" />
                 v1.0 / open source / built in 48h
               </span>
 
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tighter text-fg mt-6 leading-[1.05]">
                 Live polls.
                 <br />
-                Without the <span className="text-lime">polling</span>.
+                Without the <span className="text-red-pb">polling</span>.
               </h1>
 
               <p className="mt-5 text-sm sm:text-base text-muted max-w-xl mx-auto lg:mx-0 leading-relaxed">
@@ -75,23 +73,23 @@ function Landing() {
 
               <div className="mt-10 flex flex-wrap justify-center lg:justify-start gap-x-5 gap-y-2 text-[11px] text-muted">
                 <span className="inline-flex items-center gap-1.5">
-                  <span className="h-1.5 w-1.5 rounded-full bg-cyan" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-green-pb" />
                   ws://real-time
                 </span>
                 <span className="inline-flex items-center gap-1.5">
-                  <span className="h-1.5 w-1.5 rounded-full bg-lime" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-yellow-pb" />
                   typescript
                 </span>
                 <span className="inline-flex items-center gap-1.5">
-                  <span className="h-1.5 w-1.5 rounded-full bg-orange" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-blue-pb" />
                   drizzle + postgres
                 </span>
                 <span className="inline-flex items-center gap-1.5">
-                  <span className="h-1.5 w-1.5 rounded-full bg-purple" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-pink-pb" />
                   clerk auth
                 </span>
                 <span className="inline-flex items-center gap-1.5">
-                  <span className="h-1.5 w-1.5 rounded-full bg-pink" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-purple-pb" />
                   tanstack router
                 </span>
               </div>
@@ -104,63 +102,63 @@ function Landing() {
         </div>
       </section>
 
-      {/* HOW IT WORKS */}
+      {/* BENTO FEATURES */}
       <section className="relative mx-auto max-w-6xl px-6 py-20 border-t border-app">
-        <div className="mb-14">
-          <p className="text-[11px] uppercase tracking-[0.2em] text-muted mb-3">
-            // how_it_works
+        <div className="mb-12 flex items-end justify-between gap-4 flex-wrap">
+          <div>
+            <p className="text-[11px] uppercase tracking-[0.2em] text-muted mb-3">
+              // what_you_get
+            </p>
+            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-fg">
+              Four pieces. Pick yours.
+            </h2>
+          </div>
+          <p className="text-xs text-muted max-w-xs">
+            Every feature works on its own. Mix them by toggling a setting per
+            poll.
           </p>
-          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-fg">
-            Three steps. One WebSocket.
-          </h2>
         </div>
 
-        <div className="grid sm:grid-cols-3 gap-4">
-          <StepCard
-            num="01"
-            color="orange"
-            icon={<Pencil className="h-4 w-4" />}
-            title="WRITE"
-            description="Single choice, multi-select, mandatory toggles. Set an expiry if the room is on a clock."
-          />
-          <StepCard
-            num="02"
-            color="cyan"
-            icon={<Send className="h-4 w-4" />}
-            title="SHARE"
-            description="A short URL or a 6-char code your audience types into the Join page. No signup for them."
-          />
-          <StepCard
-            num="03"
-            color="lime"
-            icon={<Radio className="h-4 w-4" />}
-            title="STREAM"
-            description="Every response hits the chart over a socket. Bars move. Numbers tick. No refresh needed."
-          />
-        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 auto-rows-fr">
+          <BentoCard
+            color="green"
+            tag="real-time"
+            title="Streamed over WebSocket."
+            description="Every vote arrives in every viewer's browser within ~200ms. No setInterval. No refresh button."
+            span={2}
+          >
+            <BarsViz />
+          </BentoCard>
 
-        <div className="mt-12 flex flex-wrap justify-center gap-2">
-          <FeatureChip color="cyan" icon={<Zap className="h-3.5 w-3.5" />}>
-            real-time updates
-          </FeatureChip>
-          <FeatureChip
-            color="lime"
-            icon={<ShieldCheck className="h-3.5 w-3.5" />}
+          <BentoCard
+            color="blue"
+            tag="privacy"
+            title="Anonymous or auth."
+            description="Default anonymous. Switch to auth-required per poll. Creator sees who voted either way."
+            span={1}
           >
-            anonymous or auth
-          </FeatureChip>
-          <FeatureChip
-            color="orange"
-            icon={<ListChecks className="h-3.5 w-3.5" />}
+            <PrivacyViz />
+          </BentoCard>
+
+          <BentoCard
+            color="yellow"
+            tag="formats"
+            title="Mix question types."
+            description="Single choice, multi-select, mandatory toggles. Build the poll the room needs."
+            span={1}
           >
-            multi-select
-          </FeatureChip>
-          <FeatureChip color="purple" icon={<Code2 className="h-3.5 w-3.5" />}>
-            open source
-          </FeatureChip>
-          <FeatureChip color="pink" icon={<Star className="h-3.5 w-3.5" />}>
-            self-hostable
-          </FeatureChip>
+            <ChecksViz />
+          </BentoCard>
+
+          <BentoCard
+            color="pink"
+            tag="self-host"
+            title="It's just a repo."
+            description="Fork the schema, change the colors, deploy it anywhere PostgreSQL runs. Zero vendor lock-in."
+            span={2}
+          >
+            <CodeViz />
+          </BentoCard>
         </div>
       </section>
 
@@ -176,49 +174,48 @@ function Landing() {
         </div>
 
         <div className="space-y-3">
-          <Faq color="lime" question="Is PulseBoard free to use?">
+          <Faq color="green" question="Is PulseBoard free to use?">
             Yes. PulseBoard is open source and free forever &mdash; it&apos;s a
             hackathon project, not a startup. Run it on your own server, fork
-            the repo, or use the hosted demo. There are no paid plans, no usage
-            caps, and no upsell screens.
+            the repo, or use the hosted demo. No paid plans, no usage caps, no
+            upsell screens.
           </Faq>
-
-          <Faq color="cyan" question="Do my respondents need an account?">
+          <Faq color="yellow" question="Do my respondents need an account?">
             Only if you want them to. Polls are anonymous by default &mdash;
-            just share the link and anyone can vote. Switch a poll to
-            &quot;authenticated&quot; mode if you need verified responses, and
-            only signed-in users can submit. The creator sees exactly who
-            responded in either case.
+            just share the link and anyone can vote. Switch to
+            &quot;authenticated&quot; mode if you need verified responses. The
+            creator sees exactly who responded in either case.
           </Faq>
-
           <Faq
-            color="orange"
+            color="blue"
             question="How are responses live without me refreshing?"
           >
             PulseBoard runs a WebSocket per poll. The moment a vote hits the
-            database, the server pushes the new tallies down the socket to every
-            connected viewer &mdash; creator and audience. No setInterval, no
-            polling, no manual refresh. Latency is usually under a second.
+            database, the server pushes new tallies down the socket to every
+            connected viewer. No setInterval, no polling, no manual refresh.
+            Latency is usually under a second.
           </Faq>
-
-          <Faq color="purple" question="Can I close or expire a poll?">
-            Both. You can set an &quot;expires at&quot; time when creating the
-            poll &mdash; the countdown shows up live on the respondent&apos;s
-            screen, and the server refuses votes once it hits zero. You can also
-            close a poll manually from the analytics page at any time, and
-            publish results to a public read-only page when you&apos;re ready.
+          <Faq color="pink" question="Can I close or expire a poll?">
+            Both. Set an &quot;expires at&quot; time when creating &mdash; the
+            countdown shows live on every respondent&apos;s screen and the
+            server refuses votes once it hits zero. Close manually from the
+            analytics page at any time, then publish results to a public
+            read-only page when you&apos;re ready.
           </Faq>
         </div>
       </section>
 
       {/* CTA */}
       <section className="relative mx-auto max-w-6xl px-6 py-16">
-        <Card className="relative overflow-hidden p-10 sm:p-14 text-center border-t border-lime">
+        <Card
+          className="relative overflow-hidden p-10 sm:p-14 text-center border-t"
+          style={{ borderTopColor: "rgb(var(--pb-red))" }}
+        >
           <div className="relative">
             <div className="flex justify-center mb-4">
               <Logo size={40} className="text-fg" />
             </div>
-            <p className="text-[11px] uppercase tracking-[0.2em] text-lime mb-3">
+            <p className="text-[11px] uppercase tracking-[0.2em] text-red-pb mb-3">
               // ready_when_you_are
             </p>
             <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-fg">
@@ -264,73 +261,163 @@ function Landing() {
   );
 }
 
-type AccentColor = "lime" | "cyan" | "orange" | "pink" | "purple";
+type AccentColor = "red" | "yellow" | "green" | "blue" | "pink" | "purple";
 const colorVars: Record<AccentColor, string> = {
-  lime: "var(--pb-lime)",
-  cyan: "var(--pb-cyan)",
-  orange: "var(--pb-orange)",
+  red: "var(--pb-red)",
+  yellow: "var(--pb-yellow)",
+  green: "var(--pb-green)",
+  blue: "var(--pb-blue)",
   pink: "var(--pb-pink)",
   purple: "var(--pb-purple)",
 };
 
-function StepCard({
-  num,
+function BentoCard({
   color,
-  icon,
+  tag,
   title,
   description,
+  children,
+  span,
 }: {
-  num: string;
   color: AccentColor;
-  icon: React.ReactNode;
+  tag: string;
   title: string;
   description: string;
+  children?: React.ReactNode;
+  span: 1 | 2;
 }) {
   const v = colorVars[color];
+  const colClass = span === 2 ? "sm:col-span-2" : "sm:col-span-1";
   return (
-    <Card className="p-6 relative transition-colors group">
-      <div className="flex items-start justify-between mb-6">
-        <div
-          className="h-10 w-10 grid place-items-center rounded-md border transition-transform group-hover:scale-105"
-          style={{
-            color: `rgb(${v})`,
-            background: `rgb(${v} / 0.10)`,
-            borderColor: `rgb(${v} / 0.35)`,
-          }}
-        >
-          {icon}
-        </div>
+    <Card
+      className={
+        "p-6 relative flex flex-col justify-between overflow-hidden " + colClass
+      }
+      style={{ borderColor: "rgb(var(--pb-border))" }}
+    >
+      <div className="flex items-center gap-2 mb-4">
         <span
-          className="text-3xl font-bold tracking-tighter"
+          className="h-1.5 w-1.5 rounded-full"
+          style={{ background: `rgb(${v})` }}
+        />
+        <span
+          className="text-[10px] uppercase tracking-[0.2em] font-bold"
           style={{ color: `rgb(${v})` }}
         >
-          {num}
+          // {tag}
         </span>
       </div>
-      <h3 className="text-base font-bold text-fg tracking-tight">{title}</h3>
-      <p className="text-xs text-muted mt-2 leading-relaxed">{description}</p>
+      <div className="flex-1 grid sm:grid-cols-[1.4fr_1fr] gap-4 items-center">
+        <div>
+          <h3 className="text-lg sm:text-xl font-bold text-fg tracking-tight">
+            {title}
+          </h3>
+          <p className="text-xs text-muted mt-2 leading-relaxed">
+            {description}
+          </p>
+        </div>
+        <div className="flex items-center justify-end">{children}</div>
+      </div>
     </Card>
   );
 }
 
-function FeatureChip({
-  color,
-  icon,
-  children,
-}: {
-  color: AccentColor;
-  icon: React.ReactNode;
-  children: React.ReactNode;
-}) {
-  const v = colorVars[color];
+function BarsViz() {
   return (
-    <span
-      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-elev text-[11px] text-fg border transition-colors"
-      style={{ borderColor: `rgb(${v} / 0.35)` }}
+    <div className="w-full max-w-[160px] space-y-1.5">
+      <div className="h-1.5 rounded-full bg-app overflow-hidden">
+        <div
+          className="h-full w-[78%] rounded-full"
+          style={{ background: "rgb(var(--pb-green))" }}
+        />
+      </div>
+      <div className="h-1.5 rounded-full bg-app overflow-hidden">
+        <div
+          className="h-full w-[45%] rounded-full"
+          style={{ background: "rgb(var(--pb-green))", opacity: 0.7 }}
+        />
+      </div>
+      <div className="h-1.5 rounded-full bg-app overflow-hidden">
+        <div
+          className="h-full w-[22%] rounded-full"
+          style={{ background: "rgb(var(--pb-green))", opacity: 0.4 }}
+        />
+      </div>
+      <p
+        className="text-[9px] font-mono mt-2"
+        style={{ color: "rgb(var(--pb-green))" }}
+      >
+        +3 votes / sec
+      </p>
+    </div>
+  );
+}
+
+function PrivacyViz() {
+  return (
+    <div className="grid grid-cols-2 gap-2 w-full max-w-[120px]">
+      <div
+        className="aspect-square rounded-md border grid place-items-center text-[9px]"
+        style={{
+          borderColor: "rgb(var(--pb-blue) / 0.4)",
+          color: "rgb(var(--pb-blue))",
+        }}
+      >
+        anon
+      </div>
+      <div
+        className="aspect-square rounded-md grid place-items-center text-[9px] font-bold"
+        style={{
+          background: "rgb(var(--pb-blue))",
+          color: "rgb(var(--pb-bg))",
+        }}
+      >
+        auth
+      </div>
+    </div>
+  );
+}
+
+function ChecksViz() {
+  return (
+    <div className="space-y-1.5 w-full max-w-[120px]">
+      {["single", "multi", "required"].map((label, i) => (
+        <div key={label} className="flex items-center gap-2 text-[10px]">
+          <span
+            className="h-3 w-3 rounded-sm border grid place-items-center"
+            style={{
+              borderColor: `rgb(var(--pb-yellow))`,
+              background: i < 2 ? "rgb(var(--pb-yellow))" : "transparent",
+            }}
+          >
+            {i < 2 && (
+              <Check
+                className="h-2 w-2"
+                style={{ color: "rgb(var(--pb-bg))" }}
+              />
+            )}
+          </span>
+          <span className="text-muted font-mono">{label}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function CodeViz() {
+  return (
+    <div
+      className="w-full max-w-[180px] rounded-md border p-3 font-mono text-[10px] space-y-1"
+      style={{
+        borderColor: "rgb(var(--pb-pink) / 0.4)",
+        background: "rgb(var(--pb-pink) / 0.06)",
+      }}
     >
-      <span style={{ color: `rgb(${v})` }}>{icon}</span>
-      {children}
-    </span>
+      <p style={{ color: "rgb(var(--pb-pink))" }}>$ git clone</p>
+      <p className="text-muted truncate">pulse-board</p>
+      <p style={{ color: "rgb(var(--pb-pink))" }}>$ bun dev</p>
+      <p className="text-muted">running on :5173</p>
+    </div>
   );
 }
 
@@ -382,9 +469,10 @@ function Faq({
 
 function HeroMock() {
   const opts = [
-    { label: "Ladakh", pct: 64, color: "lime" as AccentColor },
-    { label: "Uttarakhand", pct: 22, color: "pink" as AccentColor },
-    { label: "Goa", pct: 14, color: "purple" as AccentColor },
+    { label: "Ladakh", pct: 48, color: "green" as AccentColor },
+    { label: "manali", pct: 28, color: "yellow" as AccentColor },
+    { label: "mussoorie", pct: 14, color: "blue" as AccentColor },
+    { label: "munnar", pct: 10, color: "pink" as AccentColor },
   ];
 
   return (
@@ -392,18 +480,18 @@ function HeroMock() {
       <div className="flex items-center justify-between mb-4 pb-3 border-b border-app">
         <div className="flex items-center gap-2">
           <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full rounded-full bg-lime opacity-75 animate-ping" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-lime" />
+            <span className="absolute inline-flex h-full w-full rounded-full bg-green-pb opacity-75 animate-ping" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-green-pb" />
           </span>
-          <span className="text-[10px] uppercase tracking-widest text-lime font-bold">
-            live &middot; 128 votes
+          <span className="text-[10px] uppercase tracking-widest text-green-pb font-bold">
+            live &middot; 412 votes
           </span>
         </div>
-        <span className="text-[10px] text-muted"></span>
+        <span className="text-[10px] text-muted">poll/destination</span>
       </div>
 
       <p className="text-fg font-medium text-sm">
-        What’s your dream travel destination in india?
+        Which destination is at the top of your travel bucket list in india?
       </p>
 
       <div className="mt-4 space-y-3">
@@ -433,8 +521,8 @@ function HeroMock() {
 
       <div className="mt-4 pt-3 border-t border-app flex items-center justify-between text-[10px]">
         <span className="text-muted font-mono">socket: connected</span>
-        <span className="inline-flex items-center gap-1 text-lime font-bold">
-          +3 just now
+        <span className="inline-flex items-center gap-1 text-green-pb font-bold">
+          +5 just now
         </span>
       </div>
     </Card>

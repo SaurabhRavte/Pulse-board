@@ -36,7 +36,7 @@ export function Logo({
         width="5"
         height="19"
         rx="1.5"
-        fill={showBackground ? "rgb(var(--pb-lime))" : "rgb(var(--pb-lime))"}
+        fill="rgb(var(--pb-red))"
       />
       <rect
         x="22"
