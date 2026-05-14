@@ -1,17 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import { useState } from "react";
 import { Link, createFileRoute } from "@tanstack/react-router";
-import {
-  ArrowRight,
-  KeyRound,
-  Star,
-  Plus,
-  Radio,
-  ShieldCheck,
-  ListChecks,
-  Code2,
-  Check,
-} from "lucide-react";
+import { ArrowRight, KeyRound, Star, Plus, Check } from "lucide-react";
 import { Button } from "../components/button";
 import { Card } from "../components/card";
 import { Logo } from "../components/logo";
