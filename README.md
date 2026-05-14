@@ -107,7 +107,7 @@ Real-time, self-hostable poll engine. Stream every vote over WebSocket.
 
 ---
 
-## 🚀 Quick Start
+## Setup Locally
 
 ### 1. Clone the repo
 
