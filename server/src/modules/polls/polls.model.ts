@@ -241,6 +241,20 @@ const PollModel = {
       .limit(1);
     return rows.length > 0;
   },
+
+  async hasRespondedByIp(pollId: string, ipHash: string): Promise<boolean> {
+    const rows = await db
+      .select({ id: responsesTable.id })
+      .from(responsesTable)
+      .where(
+        and(
+          eq(responsesTable.pollId, pollId),
+          eq(responsesTable.ipHash, ipHash),
+        ),
+      )
+      .limit(1);
+    return rows.length > 0;
+  },
 };
 
 export default PollModel;

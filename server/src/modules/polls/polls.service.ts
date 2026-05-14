@@ -133,14 +133,19 @@ const submitResponse = async (input: SubmitInput) => {
     );
   }
 
+  const ipHash = input.ip ? hashString(input.ip) : null;
+
   if (input.respondentId) {
     const already = await PollModel.hasResponded(
       input.pollId,
       input.respondentId,
     );
-    if (already) {
+    if (already)
       throw ApiError.conflict("You have already responded to this poll");
-    }
+  } else if (ipHash) {
+    const already = await PollModel.hasRespondedByIp(input.pollId, ipHash);
+    if (already)
+      throw ApiError.conflict("This device has already responded to this poll");
   }
 
   const full = await PollModel.loadQuestionsAndOptions(input.pollId);
@@ -188,7 +193,6 @@ const submitResponse = async (input: SubmitInput) => {
     }
   }
 
-  const ipHash = input.ip ? hashString(input.ip) : null;
   const result = await PollModel.recordResponse({
     pollId: input.pollId,
     respondentId: input.respondentId,
