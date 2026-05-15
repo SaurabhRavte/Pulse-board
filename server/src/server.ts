@@ -24,9 +24,14 @@ export function createApplication(): Express {
     }),
   );
 
+  const allowedOrigins = (process.env.CLIENT_ORIGIN || "http://localhost:5173")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  console.log("[cors] allowed origins:", allowedOrigins);
   app.use(
     cors({
-      origin: (process.env.CLIENT_ORIGIN || "http://localhost:5173").split(","),
+      origin: allowedOrigins,
       credentials: true,
     }),
   );
