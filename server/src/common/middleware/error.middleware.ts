@@ -3,10 +3,14 @@ import ApiError from "../utils/api-error";
 
 const errorHandler = (
   err: Error,
-  _req: Request,
+  req: Request,
   res: Response,
   _next: NextFunction,
 ): void => {
+  console.error(
+    `[err] ${req.method} ${req.originalUrl}:`,
+    err instanceof Error ? err.stack : err,
+  );
   if (err instanceof ApiError) {
     res.status(err.statusCode).json({
       success: false,

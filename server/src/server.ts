@@ -34,6 +34,14 @@ export function createApplication(): Express {
   app.use(express.json({ limit: "1mb" }));
   app.use(cookieParser());
 
+  app.use((req, _res, next) => {
+    if (req.path === "/health") return next();
+    console.log(
+      `[req] ${req.method} ${req.originalUrl} from ${req.get("origin") ?? "no-origin"}`,
+    );
+    next();
+  });
+
   // Global rate limit on every API path — auth/submit get tighter limits too.
   app.use("/api", apiLimiter);
 
